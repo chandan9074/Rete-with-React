@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
-import { createEditor } from "./editor";
 import { NodeEditor, ClassicPreset } from "rete";
 import { useRete } from "rete-react-plugin";
+import { createEditor } from "./editor";
 
 function App() {
     const [ref, editor] = useRete(createEditor);
@@ -55,39 +55,53 @@ function App() {
             return;
         }
 
-        const nodeType = event.dataTransfer.getData("nodeType"); // Get node type
-        if (nodeType === "customNode") {
+        const subnode = event.dataTransfer.getData("subnode"); // Get subnode data
+        if (subnode) {
             const rect = ref.current.getBoundingClientRect(); // Get canvas position
             const x = event.clientX - rect.left; // Calculate drop X
             const y = event.clientY - rect.top; // Calculate drop Y
 
-            // Create a new node
-            const socket = editor.components.socket; // Access the socket from editor.components
-            const newNode = new editor.components.ClassicPreset.Node(
-                "New Node"
-            );
-
-            // Add a control to the node
-            newNode.addControl(
-                "control",
-                new editor.components.ClassicPreset.InputControl("text", {
-                    initial: "New Node",
-                })
-            );
-
-            // Add both input and output sockets
+            // Create a new node for the subnode
+            const socket = editor.components.socket;
+            const newNode = new editor.components.ClassicPreset.Node(subnode);
             newNode.addInput(
                 "input",
-                new editor.components.ClassicPreset.Input(socket) // Add input socket
+                new editor.components.ClassicPreset.Input(socket)
             );
             newNode.addOutput(
                 "output",
-                new editor.components.ClassicPreset.Output(socket) // Add output socket
+                new editor.components.ClassicPreset.Output(socket)
             );
 
-            // Add the node to the editor and position it
-            await editor.addCustomNode(newNode); // Add node to editor
-            await editor.view.area.translate(newNode.id, { x, y }); // Position node
+            await editor.addCustomNode(newNode, [subnode]); // Add the subnode as its own node
+            await editor.view.area.translate(newNode.id, { x, y }); // Position the new node
+        } else {
+            const nodeType = event.dataTransfer.getData("nodeType"); // Get node type
+            if (nodeType === "customNode") {
+                const rect = ref.current.getBoundingClientRect(); // Get canvas position
+                const x = event.clientX - rect.left; // Calculate drop X
+                const y = event.clientY - rect.top; // Calculate drop Y
+
+                // Create a new node
+                const socket = editor.components.socket; // Access the socket from editor.components
+                const newNode = new editor.components.ClassicPreset.Node(
+                    "New Node"
+                );
+
+                // Add both input and output sockets
+                newNode.addInput(
+                    "input",
+                    new editor.components.ClassicPreset.Input(socket) // Add input socket
+                );
+                newNode.addOutput(
+                    "output",
+                    new editor.components.ClassicPreset.Output(socket) // Add output socket
+                );
+
+                // Add the node to the editor and position it
+                await editor.addCustomNode(newNode); // Add node to editor
+                await editor.view.area.translate(newNode.id, { x, y }); // Position node
+            }
         }
     };
 

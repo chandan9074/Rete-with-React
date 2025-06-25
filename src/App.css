@@ -63,3 +63,17 @@ body {
     border: 1px solid #ccc;
     border-radius: 3px;
 }
+.subnodes {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.subnode {
+    padding: 5px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: grab;
+}
