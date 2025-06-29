@@ -2,7 +2,9 @@ import React from "react";
 
 export const CustomNode = (props) => {
     const { data } = props; // Extract data from props
-    const { inputs, outputs, controls, label, subnodes } = data; // Destructure data properties
+    const { inputs, outputs, controls, label } = data; // Destructure data properties
+
+    console.log({ props });
 
     return (
         <div className="bg-gray-800 border-2 border-gray-600 rounded-lg p-4 shadow-md w-64">
@@ -19,7 +21,7 @@ export const CustomNode = (props) => {
                         <div key={key} className="flex items-center space-x-2">
                             <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
                             <div className="text-white text-sm">
-                                {input?.socket?.name || "Input"}
+                                {input.socket.name || "Input"}
                             </div>
                         </div>
                     ))}
@@ -30,7 +32,7 @@ export const CustomNode = (props) => {
                     {Object.entries(outputs).map(([key, output]) => (
                         <div key={key} className="flex items-center space-x-2">
                             <div className="text-white text-sm">
-                                {output?.socket?.name || "Output"}
+                                {output.socket.name || "Output"}
                             </div>
                             <div className="w-4 h-4 bg-green-500 rounded-full"></div>
                         </div>
@@ -39,19 +41,21 @@ export const CustomNode = (props) => {
             </div>
 
             {/* Subnodes */}
-            <div className="mt-4">
-                <div className="text-gray-400 text-sm mb-2">Subnodes:</div>
-                <div className="flex flex-col space-y-2">
-                    {subnodes?.map((subnode, index) => (
-                        <div
-                            key={index}
-                            className="bg-gray-700 text-white text-sm px-2 py-1 rounded-md"
-                        >
-                            {subnode}
-                        </div>
-                    ))}
+            {data?.data?.subnodes && data?.data?.subnodes.length > 0 && (
+                <div className="mt-4">
+                    <div className="text-gray-400 text-sm mb-2">Subnodes:</div>
+                    <div className="flex flex-col space-y-2">
+                        {data?.data?.subnodes.map((subnode) => (
+                            <div
+                                key={subnode.id}
+                                className="bg-gray-700 text-white text-sm px-2 py-1 rounded-md"
+                            >
+                                {subnode.label}
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

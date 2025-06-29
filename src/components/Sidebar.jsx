@@ -3,7 +3,7 @@ import { FaSquareShareNodes } from "react-icons/fa6";
 
 const Sidebar = () => {
     const handleDragStart = (event) => {
-        event.dataTransfer.setData("nodeType", "customNode"); // Pass node type
+        event.dataTransfer.setData("nodeType", "parentNode"); // Pass node type
     };
 
     return (

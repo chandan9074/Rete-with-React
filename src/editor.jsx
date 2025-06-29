@@ -11,7 +11,7 @@ import { CustomSocket } from "./CustomSocket";
 import { CustomConnection } from "./CustomConnection";
 import { addCustomBackground } from "./custom-background";
 
-export async function createEditor(container) {
+export async function createEditor(container, data) {
     const socket = new ClassicPreset.Socket("socket");
 
     const editor = new NodeEditor();
@@ -49,44 +49,72 @@ export async function createEditor(container) {
 
     AreaExtensions.simpleNodesOrder(area);
 
-    // Expose socket and ClassicPreset for reuse
-    editor.components = { ClassicPreset, socket };
+    // Helper function to create a node
+    const createNode = async (nodeData) => {
+        const node = new ClassicPreset.Node(nodeData.label);
 
-    // Set the area property on editor.view
-    editor.view = { area }; // Ensure editor.view.area is defined
+        // Initialize inputs
+        Object.entries(nodeData.inputs || {}).forEach(([key, input]) => {
+            node.addInput(key, new ClassicPreset.Input(socket));
+        });
 
-    // Add a method to handle nodes with subnodes
-    editor.addCustomNode = async (node, subnodes = []) => {
-        console.log("Adding node:", node);
-        node.subnodes = subnodes; // Attach subnodes to the node
-        await editor.addNode(node); // Add the node to the editor
-        console.log("Node after addNode:", node);
-        await area.translate(node.id, { x: 0, y: 0 }); // Position the node
-        await AreaExtensions.zoomAt(area, [node]); // Zoom to the newly added node
+        // Initialize outputs
+        Object.entries(nodeData.outputs || {}).forEach(([key, output]) => {
+            node.addOutput(key, new ClassicPreset.Output(socket));
+        });
+
+        // Attach subnodes to the node's data
+        node.slug = nodeData.slug || nodeData.id; // Use slug or id as slug
+        node.data = node.data || {}; // Ensure node.data is initialized
+        node.data.subnodes = nodeData.subnodes || []; // Attach subnodes
+
+        await editor.addNode(node);
+        await area.translate(node.id, {
+            x: Math.random() * 500,
+            y: Math.random() * 500,
+        }); // Random position
+        return node;
     };
 
-    // Example: Create nodes with subnodes
-    const a = new ClassicPreset.Node("Parent Node A");
-    a.addOutput("a", new ClassicPreset.Output(socket));
-    a.addInput("a", new ClassicPreset.Input(socket));
-    await editor.addCustomNode(a, ["Child 1", "Child 2"]);
+    // Render parent nodes only
+    const nodeMap = {}; // Map to store nodes by ID
+    for (const nodeData of data.nodes) {
+        const node = await createNode(nodeData);
+        nodeMap[nodeData.id] = node;
+    }
 
-    const b = new ClassicPreset.Node("Parent Node B");
-    b.addOutput("b", new ClassicPreset.Output(socket));
-    b.addInput("b", new ClassicPreset.Input(socket));
-    await editor.addCustomNode(b, ["Child 3", "Child 4"]);
+    console.log({ nodeMap });
 
-    await area.translate(a.id, { x: 0, y: 0 });
-    await area.translate(b.id, { x: 300, y: 0 });
-
-    await editor.addConnection(new ClassicPreset.Connection(a, "a", b, "b"));
+    // Render connections
+    for (const connectionData of data.connections) {
+        const sourceNode = nodeMap[connectionData.source];
+        const targetNode = nodeMap[connectionData.target];
+        if (sourceNode && targetNode) {
+            await editor.addConnection(
+                new ClassicPreset.Connection(
+                    sourceNode,
+                    connectionData.sourceOutput,
+                    targetNode,
+                    connectionData.targetInput
+                )
+            );
+        }
+    }
 
     setTimeout(() => {
         AreaExtensions.zoomAt(area, editor.getNodes());
     }, 100);
 
-    // return {
-    //     destroy: () => area.destroy(),
-    // };
-    return editor; // Return the full editor object
+    // Expose the addNode function
+    const addNode = async (nodeData) => {
+        const node = await createNode(nodeData);
+        nodeMap[nodeData.id] = node; // Add the new node to the nodeMap
+        return node;
+    };
+
+    return {
+        editor, // Return the editor instance
+        destroy: () => area.destroy(), // Add a destroy method to clean up the editor
+        addNode, // Expose the addNode function
+    };
 }

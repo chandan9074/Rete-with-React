@@ -1,122 +1,176 @@
-import { useState, useEffect } from "react";
-import Sidebar from "./components/Sidebar";
-import { NodeEditor, ClassicPreset } from "rete";
-import { useRete } from "rete-react-plugin";
-import { createEditor } from "./editor";
+import { useEffect, useRef } from "react";
+import { createEditor } from "./editor"; // Assuming createEditor is defined in editor.jsx
+import Sidebar from "./components/Sidebar"; // Assuming Sidebar is defined in components/Sidebar.jsx
+
+// Mock data for nodes and connections
+const mockData = {
+    nodes: [
+        {
+            id: "node1",
+            label: "Parent Node A",
+            slug: "parent-node-a",
+            inputs: [{ key: "input1", socket: { name: "socket" } }],
+            outputs: [{ key: "output1", socket: { name: "socket" } }],
+            subnodes: [
+                {
+                    id: "subnode1",
+                    label: "Child 1",
+                    inputs: [{ key: "input2", socket: { name: "socket" } }],
+                    outputs: [{ key: "output2", socket: { name: "socket" } }],
+                },
+                {
+                    id: "subnode2",
+                    label: "Child 2",
+                    inputs: [{ key: "input3", socket: { name: "socket" } }],
+                    outputs: [{ key: "output3", socket: { name: "socket" } }],
+                },
+            ],
+        },
+        {
+            id: "node2",
+            label: "Parent Node B",
+            slug: "parent-node-b",
+            inputs: [{ key: "input4", socket: { name: "socket" } }],
+            outputs: [{ key: "output4", socket: { name: "socket" } }],
+            subnodes: [
+                {
+                    id: "subnode3",
+                    label: "Child 3",
+                    inputs: [{ key: "input5", socket: { name: "socket" } }],
+                    outputs: [{ key: "output5", socket: { name: "socket" } }],
+                },
+                {
+                    id: "subnode4",
+                    label: "Child 4",
+                    inputs: [{ key: "input6", socket: { name: "socket" } }],
+                    outputs: [{ key: "output6", socket: { name: "socket" } }],
+                },
+            ],
+        },
+    ],
+    connections: [
+        // {
+        //     source: "node1",
+        //     sourceOutput: "output1", // Matches the output key of node1
+        //     target: "node2",
+        //     targetInput: "input4", // Matches the input key of node2
+        // },
+        // {
+        //     source: "subnode1",
+        //     sourceOutput: "output4", // Matches the output key of subnode1
+        //     target: "subnode3",
+        //     targetInput: "input5", // Matches the input key of subnode3
+        // },
+    ],
+};
+
+// // Flatten the nodes and subnodes for the editor
+// function flattenNodes(mockData) {
+//     const flattenedNodes = [];
+//     mockData.nodes.forEach((parentNode) => {
+//         // Add the parent node
+//         flattenedNodes.push({
+//             id: parentNode.id,
+//             label: parentNode.label,
+//             inputs: parentNode.inputs,
+//             outputs: parentNode.outputs,
+//         });
+
+//         // Add the subnodes
+//         parentNode.subnodes.forEach((subnode) => {
+//             flattenedNodes.push({
+//                 id: subnode.id,
+//                 label: subnode.label,
+//                 inputs: subnode.inputs,
+//                 outputs: subnode.outputs,
+//             });
+//         });
+//     });
+//     return flattenedNodes;
+// }
+
+// // Flattened connections remain the same
+// const flattenedMockData = {
+//     nodes: flattenNodes(mockData),
+//     connections: mockData.connections,
+// };
+
+// console.log(flattenedMockData);
 
 function App() {
-    const [ref, editor] = useRete(createEditor);
-    const [isEditorReady, setIsEditorReady] = useState(false);
+    const editorContainerRef = useRef(null); // Reference to the editor container
+    const editorInitialized = useRef(false); // To ensure the editor initializes only once
 
     useEffect(() => {
-        if (editor) {
-            if (!editor.components) {
-                editor.components = {}; // Initialize components if missing
-            }
-            if (!editor.components.socket) {
-                console.warn("Socket is missing, creating a new one.");
-                editor.components.socket = new ClassicPreset.Socket("socket");
-            }
-            if (!editor.components.ClassicPreset) {
-                console.warn("ClassicPreset is missing, adding it.");
-                editor.components.ClassicPreset = ClassicPreset;
-            }
-            console.log("Editor initialized:", editor); // Debug log
-            console.log("Editor components:", editor.components); // Debug log
-            setIsEditorReady(true); // Mark editor as ready
-        }
-        // Cleanup function to destroy the editor on unmount
-        return () => {
-            if (editor && typeof editor.destroy === "function") {
-                try {
-                    editor.destroy();
-                } catch (error) {
-                    console.error("Error destroying editor:", error);
-                }
-            }
-        };
-    }, [editor]);
+        if (!editorInitialized.current) {
+            console.log("Initializing editor...");
+            editorInitialized.current = true;
 
-    const handleDragOver = (event) => {
-        event.preventDefault(); // Allow dropping
+            // Initialize the editor
+            createEditor(editorContainerRef.current, mockData)
+                .then((editorInstance) => {
+                    console.log("Editor initialized successfully");
+                    console.log({ editorInstance });
+                    editorContainerRef.current.editor = editorInstance; // Store the editor instance
+                })
+                .catch((error) =>
+                    console.error("Error initializing editor:", error)
+                );
+        }
+    }, []); // Empty dependency array ensures this runs only once
+
+    // Handle drag-and-drop to add a new node
+    const handleDrop = (event) => {
+        event.preventDefault();
+        const nodeType = event.dataTransfer.getData("nodeType");
+
+        if (nodeType === "parentNode") {
+            const newNodeId = `node${mockData.nodes.length + 1}`;
+            const newNode = {
+                id: newNodeId,
+                label: `Parent Node ${mockData.nodes.length + 1}`,
+                slug: `parent-node-${mockData.nodes.length + 1}`,
+                inputs: [{ key: "input1", socket: { name: "socket" } }],
+                outputs: [{ key: "output1", socket: { name: "socket" } }],
+                subnodes: [],
+            };
+
+            console.log("Adding new parent node:", newNode);
+
+            // Update the mockData state
+            // setMockData((prevData) => ({
+            //     ...prevData,
+            //     nodes: [...prevData.nodes, newNode],
+            // }));
+
+            // Dynamically add the new node to the editor
+            if (editorContainerRef.current) {
+                const { addNode } = editorContainerRef.current.editor;
+                console.log({ addNode });
+                addNode(newNode).then(() => {
+                    console.log("Node added successfully");
+                });
+                // editor.addNode(newNode); // Add the new node directly to the editor
+            }
+        }
     };
 
-    const handleDrop = async (event) => {
-        event.preventDefault();
-
-        if (
-            !isEditorReady ||
-            !editor ||
-            !editor.components ||
-            !editor.components.socket
-        ) {
-            console.error("Editor is not initialized or socket is undefined");
-            console.error("Editor:", editor); // Debug log
-            return;
-        }
-
-        const subnode = event.dataTransfer.getData("subnode"); // Get subnode data
-        if (subnode) {
-            const rect = ref.current.getBoundingClientRect(); // Get canvas position
-            const x = event.clientX - rect.left; // Calculate drop X
-            const y = event.clientY - rect.top; // Calculate drop Y
-
-            // Create a new node for the subnode
-            const socket = editor.components.socket;
-            const newNode = new editor.components.ClassicPreset.Node(subnode);
-            newNode.addInput(
-                "input",
-                new editor.components.ClassicPreset.Input(socket)
-            );
-            newNode.addOutput(
-                "output",
-                new editor.components.ClassicPreset.Output(socket)
-            );
-
-            await editor.addCustomNode(newNode, [subnode]); // Add the subnode as its own node
-            await editor.view.area.translate(newNode.id, { x, y }); // Position the new node
-        } else {
-            const nodeType = event.dataTransfer.getData("nodeType"); // Get node type
-            if (nodeType === "customNode") {
-                const rect = ref.current.getBoundingClientRect(); // Get canvas position
-                const x = event.clientX - rect.left; // Calculate drop X
-                const y = event.clientY - rect.top; // Calculate drop Y
-
-                // Create a new node
-                const socket = editor.components.socket; // Access the socket from editor.components
-                const newNode = new editor.components.ClassicPreset.Node(
-                    "New Node"
-                );
-
-                // Add both input and output sockets
-                newNode.addInput(
-                    "input",
-                    new editor.components.ClassicPreset.Input(socket) // Add input socket
-                );
-                newNode.addOutput(
-                    "output",
-                    new editor.components.ClassicPreset.Output(socket) // Add output socket
-                );
-
-                // Add the node to the editor and position it
-                await editor.addCustomNode(newNode); // Add node to editor
-                await editor.view.area.translate(newNode.id, { x, y }); // Position node
-            }
-        }
+    const handleDragOver = (event) => {
+        event.preventDefault(); // Allow drop
     };
 
     return (
-        <div
-            className="relative h-screen"
-            onDragOver={handleDragOver} // Allow drag-over
-            onDrop={handleDrop} // Handle drop
-        >
+        <div className="App" style={{ display: "flex", height: "100vh" }}>
+            {/* Sidebar */}
             <Sidebar />
+
+            {/* Editor Container */}
             <div
-                ref={ref}
-                className="absolute top-0 right-0 z-10"
-                style={{ height: "100%", width: "100vw" }}
-            ></div>
+                ref={editorContainerRef}
+                style={{ flex: 1, height: "100vh" }}
+                onDrop={handleDrop} // Handle drop event
+                onDragOver={handleDragOver} // Allow drag-over
+            />
         </div>
     );
 }
