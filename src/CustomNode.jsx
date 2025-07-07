@@ -32,143 +32,122 @@ export function CustomNode(props) {
     // Compute any extra styles passed via props.styles
     const extraStyle = typeof stylesFn === "function" ? stylesFn(props) : {};
 
+    // Constants for socket/control spacing
+    const socketMargin = 6;
+    const socketSize = 16;
+
     return (
         <div
             data-testid="node"
-            className={`
-        bg-black
-        border-2
-        ${selected ? "border-red-500" : "border-gray-400"}
-        rounded-lg
-        cursor-pointer
-        box-border
-        relative
-        select-none
-      `}
-            style={{
-                width: `${nodeWidth}px`,
-                ...(nodeHeight ? { height: `${nodeHeight}px` } : {}),
-                paddingBottom: "6px",
-                ...extraStyle,
-            }}
+            className={
+                `bg-gray-800/70  border-2 border-gray-600 rounded-lg p-4 shadow-md w-64` +
+                (selected ? " border-red-500" : "")
+            }
+            style={extraStyle}
         >
-            {/* Title */}
-            <div
-                onPointerDown={(e) => {
-                    e.stopPropagation();
-                    console.log(">>>");
-                }}
-                className="title text-white font-sans text-lg p-2"
-                data-testid="title"
-            >
-                {label}
+            {/* Node Title */}
+            <div className="text-white text-lg font-bold mb-4 text-center">
+                {label || "Custom Node"}
             </div>
 
-            {/* Outputs */}
-            {outputs.map(([key, output]) =>
-                output ? (
-                    <div
-                        className="output text-right"
-                        key={key}
-                        data-testid={`output-${key}`}
-                    >
-                        <div
-                            className="output-title inline-block align-middle text-white font-sans text-sm"
-                            data-testid="output-title"
-                            style={{
-                                margin: `6px`,
-                                lineHeight: `16px`,
-                            }}
-                        >
-                            {output.label}
-                        </div>
-                        <div
-                            className="output-socket inline-block"
-                            style={{ marginRight: -1 }}
-                        >
-                            <RefSocket
-                                side="output"
-                                emit={emit}
-                                socketKey={key}
-                                nodeId={id}
-                                payload={output.socket}
-                            />
-                        </div>
-                    </div>
-                ) : null
-            )}
-
-            {/* Controls */}
-            {controls.map(([key, control]) =>
-                control ? (
-                    <div
-                        key={key}
-                        className="control block"
-                        style={{
-                            padding: `6px ${16 / 2 + 6}px`,
-                        }}
-                    >
-                        <RefControl
-                            name="control"
-                            emit={emit}
-                            payload={control}
-                        />
-                    </div>
-                ) : null
-            )}
-
-            {/* Inputs */}
-            {inputs.map(([key, input]) =>
-                input ? (
-                    <div
-                        className="input flex items-center"
-                        key={key}
-                        data-testid={`input-${key}`}
-                    >
-                        <div
-                            className="input-socket inline-block"
-                            style={{ marginLeft: -1 }}
-                        >
+            {/* Sockets Row */}
+            <div className="flex justify-between">
+                {/* Inputs */}
+                <div className="flex flex-col space-y-2">
+                    {inputs.map(([key, input]) => (
+                        <div key={key} className="flex items-center space-x-2">
                             <RefSocket
                                 side="input"
                                 emit={emit}
                                 socketKey={key}
                                 nodeId={id}
                                 payload={input.socket}
+                                className="w-4 h-4 bg-blue-500 rounded-full"
+                                style={{ cursor: "pointer" }}
+                            />
+                            <div className="text-white text-sm">
+                                {input.socket.name || key}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Outputs */}
+                <div className="flex flex-col space-y-2 items-end">
+                    {outputs.map(([key, output]) => (
+                        <div key={key} className="flex items-center space-x-2">
+                            <div className="text-white text-sm">
+                                {output.socket.name || key}
+                            </div>
+                            <RefSocket
+                                side="output"
+                                emit={emit}
+                                socketKey={key}
+                                nodeId={id}
+                                payload={output.socket}
+                                className="w-4 h-4 bg-green-500 rounded-full"
+                                style={{ cursor: "pointer" }}
                             />
                         </div>
+                    ))}
+                </div>
+            </div>
 
-                        {/* Label or control */}
-                        {(!input.control || !input.showControl) && (
+            {/* Controls */}
+            {controls.length > 0 && (
+                <div className="mt-4 space-y-2">
+                    {controls.map(
+                        ([key, control]) =>
+                            control && (
+                                <div
+                                    key={key}
+                                    className="control block"
+                                    style={{
+                                        padding: `${socketMargin}px ${
+                                            socketSize / 2 + socketMargin
+                                        }px`,
+                                    }}
+                                >
+                                    <RefControl
+                                        name={key}
+                                        emit={emit}
+                                        payload={control}
+                                    />
+                                </div>
+                            )
+                    )}
+                </div>
+            )}
+
+            {/* Subnodes */}
+            {data.data.subnodes?.length > 0 && (
+                <div className="mt-4">
+                    <div className="text-gray-400 text-sm mb-2">Subnodes:</div>
+                    <div className="flex flex-col space-y-2">
+                        {data.data.subnodes.map((subnode) => (
                             <div
-                                className="input-title inline-block align-middle text-white font-sans text-sm"
-                                data-testid="input-title"
-                                style={{
-                                    margin: `6px`,
-                                    lineHeight: `16px`,
-                                }}
+                                key={subnode.id}
+                                className="flex items-center space-x-2"
                             >
-                                {input.label}
-                            </div>
-                        )}
-                        {input.control && input.showControl && (
-                            <span
-                                className="input-control inline-block align-middle"
-                                style={{
-                                    zIndex: 1,
-                                    width: `calc(100% - ${16 + 2 * 6}px)`,
-                                    lineHeight: `16px`,
-                                }}
-                            >
-                                <RefControl
-                                    name="input-control"
+                                {/* Label */}
+                                <div className="text-white text-sm">
+                                    {subnode.label}
+                                </div>
+
+                                {/* Actual Rete socket */}
+                                <RefSocket
+                                    side="output"
                                     emit={emit}
-                                    payload={input.control}
+                                    socketKey={subnode.id}
+                                    nodeId={data.id}
+                                    payload={subnode.socket}
+                                    className="w-3 h-3 bg-blue-500 rounded-full"
+                                    style={{ cursor: "pointer" }}
                                 />
-                            </span>
-                        )}
+                            </div>
+                        ))}
                     </div>
-                ) : null
+                </div>
             )}
         </div>
     );

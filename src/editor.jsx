@@ -11,6 +11,7 @@ import { CustomSocket } from "./CustomSocket";
 import { CustomConnection } from "./CustomConnection";
 import { addCustomBackground } from "./custom-background";
 import { StyledNode } from "./StyledNode";
+import { useRef } from "react";
 
 export async function createEditor(container) {
     const socket = new ClassicPreset.Socket("socket");
@@ -31,13 +32,7 @@ export async function createEditor(container) {
         Presets.classic.setup({
             customize: {
                 node(context) {
-                    if (context.payload.label === "Fully customized") {
-                        return CustomNode;
-                    }
-                    if (context.payload.label === "Override styles") {
-                        return StyledNode;
-                    }
-                    return Presets.classic.Node;
+                    return CustomNode;
                 },
                 socket() {
                     return CustomSocket;
@@ -63,23 +58,64 @@ export async function createEditor(container) {
     // Order nodes simply
     AreaExtensions.simpleNodesOrder(area);
 
-    // Create two nodes and a connection between them
-    const a = new ClassicPreset.Node("Override styles");
-    a.addOutput("a", new ClassicPreset.Output(socket));
-    a.addInput("a", new ClassicPreset.Input(socket));
-    await editor.addNode(a);
+    // Initialize node configs
+    let nodeConfigs = [
+        {
+            label: "Parent Node A",
+            id: "node1",
+            x: 0,
+            y: 0,
+            inputs: ["a"],
+            outputs: ["a"],
+            subnodes: [
+                { id: "sub1", label: "Child 1" },
+                { id: "sub2", label: "Child 2" },
+            ],
+        },
+        {
+            label: "Parent Node B",
+            id: "node2",
+            x: 300,
+            y: 0,
+            inputs: ["a"],
+            outputs: ["a"],
+            subnodes: [],
+        },
+    ];
 
-    const b = new ClassicPreset.Node("Fully customized");
-    b.addOutput("a", new ClassicPreset.Output(socket));
-    b.addInput("a", new ClassicPreset.Input(socket));
-    await editor.addNode(b);
+    // 1) Helper function to create nodes
+    async function makeNode(cfg) {
+        const node = new ClassicPreset.Node(cfg.label);
 
-    // Position nodes
-    await area.translate(a.id, { x: 0, y: 0 });
-    await area.translate(b.id, { x: 300, y: 0 });
+        cfg.inputs.forEach((key) =>
+            node.addInput(key, new ClassicPreset.Input(socket))
+        );
+        cfg.outputs.forEach((key) =>
+            node.addOutput(key, new ClassicPreset.Output(socket))
+        );
 
-    // Connect nodes
-    await editor.addConnection(new ClassicPreset.Connection(a, "a", b, "a"));
+        node.data = {};
+        node.data.subnodes = (cfg.subnodes || []).map((sn) => ({
+            ...sn,
+            socket,
+        }));
+
+        await editor.addNode(node);
+        await area.translate(node.id, { x: cfg.x, y: cfg.y });
+        return node;
+    }
+
+    // Loop over the initial nodeConfigs and create nodes
+    const created = {};
+    for (let cfg of nodeConfigs) {
+        created[cfg.id] = await makeNode(cfg);
+    }
+
+    // 2) Dynamically add node function triggered by App.js
+    const addNode = (newNode) => {
+        nodeConfigs.push(newNode); // Add to the array
+        makeNode(newNode); // Create and render the node
+    };
 
     // Zoom to fit
     setTimeout(() => {
@@ -88,5 +124,6 @@ export async function createEditor(container) {
 
     return {
         destroy: () => area.destroy(),
+        addNode, // Return the reference to addNode
     };
 }
