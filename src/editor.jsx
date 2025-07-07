@@ -26,15 +26,9 @@ export async function createEditor(container, data) {
     render.addPreset(
         Presets.classic.setup({
             customize: {
-                node() {
-                    return CustomNode; // Use CustomNode for all nodes
-                },
-                socket() {
-                    return CustomSocket; // Use CustomSocket for all sockets
-                },
-                connection() {
-                    return CustomConnection; // Use CustomConnection for all connections
-                },
+                node: () => CustomNode,
+                socket: () => CustomSocket,
+                connection: () => CustomConnection,
             },
         })
     );
