@@ -3,25 +3,24 @@ import { Presets } from "rete-react-plugin";
 
 const { useConnection } = Presets.classic;
 
-export function CustomConnection(props) {
-    const { path } = useConnection(); // Get the connection path
+export function CustomConnection({ styles, ...props }) {
+    const { path } = useConnection();
 
-    if (!path) {
-        console.warn("Connection path is missing or undefined");
-        // return null;
-    }
+    if (!path) return null;
 
-    // Log the connection data for debugging
-    console.log("CustomConnection props:", props);
+    // If you were passing a function to generate extra CSS,
+    // call it here and pass the resulting object into style
+    const extraStyle = typeof styles === "function" ? styles(props) : {};
 
     return (
         <svg
-            className="absolute overflow-visible pointer-events-none w-[9999px] h-[9999px]"
             data-testid="connection"
+            className="absolute overflow-visible pointer-events-none w-[9999px] h-[9999px]"
         >
             <path
-                d={path} // Render the connection path
-                className="fill-none stroke-green-500 stroke-2 pointer-events-auto"
+                d={path}
+                className="fill-none stroke-[5px] stroke-black pointer-events-auto"
+                style={extraStyle}
             />
         </svg>
     );
