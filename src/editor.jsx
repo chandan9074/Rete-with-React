@@ -10,7 +10,6 @@ import { CustomNode } from "./CustomNode";
 import { CustomSocket } from "./CustomSocket";
 import { CustomConnection } from "./CustomConnection";
 import { addCustomBackground } from "./custom-background";
-import { StyledNode } from "./StyledNode";
 import { useRef } from "react";
 
 export async function createEditor(container) {
@@ -58,7 +57,7 @@ export async function createEditor(container) {
     // Order nodes simply
     AreaExtensions.simpleNodesOrder(area);
 
-    // Initialize node configs
+    // Initialize node configs with inputs and outputs for subnodes
     let nodeConfigs = [
         {
             label: "Parent Node A",
@@ -68,8 +67,18 @@ export async function createEditor(container) {
             inputs: ["a"],
             outputs: ["a"],
             subnodes: [
-                { id: "sub1", label: "Child 1" },
-                { id: "sub2", label: "Child 2" },
+                {
+                    id: "sub1",
+                    label: "Child 1",
+                    inputs: ["in"], // Define input for subnode
+                    outputs: ["out"], // Define output for subnode
+                },
+                {
+                    id: "sub2",
+                    label: "Child 2",
+                    inputs: ["in"], // Define input for subnode
+                    outputs: ["out"], // Define output for subnode
+                },
             ],
         },
         {
@@ -83,22 +92,50 @@ export async function createEditor(container) {
         },
     ];
 
-    // 1) Helper function to create nodes
+    // Helper function to create nodes
     async function makeNode(cfg) {
         const node = new ClassicPreset.Node(cfg.label);
 
+        // Add parent node inputs with multiple connections enabled
         cfg.inputs.forEach((key) =>
-            node.addInput(key, new ClassicPreset.Input(socket))
-        );
-        cfg.outputs.forEach((key) =>
-            node.addOutput(key, new ClassicPreset.Output(socket))
+            node.addInput(key, new ClassicPreset.Input(socket, key, true))
         );
 
+        // Add parent node outputs with multiple connections enabled
+        cfg.outputs.forEach((key) =>
+            node.addOutput(key, new ClassicPreset.Output(socket, key, true))
+        );
+
+        // Add subnodes with inputs and outputs supporting multiple connections
         node.data = {};
-        node.data.subnodes = (cfg.subnodes || []).map((sn) => ({
-            ...sn,
-            socket,
-        }));
+        node.data.subnodes = (cfg.subnodes || []).map((sn) => {
+            const subnode = {
+                ...sn,
+                socket,
+                inputs: {},
+                outputs: {},
+            };
+
+            // Add input socket for subnode with multiple connections
+            (sn.inputs || []).forEach((key) => {
+                subnode.inputs[key] = new ClassicPreset.Input(
+                    socket,
+                    key,
+                    true
+                );
+            });
+
+            // Add output socket for subnode with multiple connections
+            (sn.outputs || []).forEach((key) => {
+                subnode.outputs[key] = new ClassicPreset.Output(
+                    socket,
+                    key,
+                    true
+                );
+            });
+
+            return subnode;
+        });
 
         await editor.addNode(node);
         await area.translate(node.id, { x: cfg.x, y: cfg.y });
@@ -111,11 +148,42 @@ export async function createEditor(container) {
         created[cfg.id] = await makeNode(cfg);
     }
 
-    // 2) Dynamically add node function triggered by App.js
+    // Dynamically add node function triggered by App.js
     const addNode = (newNode) => {
         nodeConfigs.push(newNode); // Add to the array
         makeNode(newNode); // Create and render the node
     };
+
+    // Add connection validation to ensure socket compatibility
+    connection.addPipe((context) => {
+        if (context.type === "connectioncreate") {
+            const { sourceOutput, targetInput } = context.data;
+            const sourceNode = editor.getNode(context.data.source);
+            const targetNode = editor.getNode(context.data.target);
+
+            // Check parent node sockets
+            let sourceSocket = sourceNode.outputs[sourceOutput]?.socket;
+            let targetSocket = targetNode.inputs[targetInput]?.socket;
+
+            // Check subnode sockets if applicable
+            if (!sourceSocket) {
+                sourceSocket = sourceNode.data.subnodes?.find(
+                    (sn) => sn.outputs[sourceOutput]
+                )?.outputs[sourceOutput]?.socket;
+            }
+            if (!targetSocket) {
+                targetSocket = targetNode.data.subnodes?.find(
+                    (sn) => sn.inputs[targetInput]
+                )?.inputs[targetInput]?.socket;
+            }
+
+            // Allow connection only if sockets match
+            if (sourceSocket && targetSocket && sourceSocket !== targetSocket) {
+                return; // Prevent connection if sockets don't match
+            }
+        }
+        return context;
+    });
 
     // Zoom to fit
     setTimeout(() => {
