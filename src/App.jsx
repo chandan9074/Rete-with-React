@@ -82,9 +82,42 @@ export default function App() {
         }
     };
 
+    // Handle submit button click to log nodes and connections
+    const handleSubmit = () => {
+        if (editorContainerRef.current) {
+            const editor = editorContainerRef.current.editor;
+            const nodes = editor.getNodes().map((node) => {
+                console.log("Node Data:", node);
+                return {
+                    id: node.id,
+                    label: node.label,
+                    position: { x: node.position.x, y: node.position.y },
+                    inputs: Object.keys(node.inputs),
+                    outputs: Object.keys(node.outputs),
+                    subnodes: node.data.subnodes || [],
+                };
+            });
+
+            const connections = editor.getConnections().map((connection) => ({
+                source: connection.source,
+                sourceOutput: connection.sourceOutput,
+                target: connection.target,
+                targetInput: connection.targetInput,
+            }));
+
+            const data = {
+                nodes,
+                connections,
+            };
+
+            console.log("Editor Data:", JSON.stringify(data, null, 2));
+        }
+    };
+
     return (
         <div className="App">
             <button onClick={handleAddNode}>Add Node</button>{" "}
+            <button onClick={handleSubmit}>Submit</button>{" "}
             {/* Button to add nodes */}
             <div
                 ref={editorContainerRef}

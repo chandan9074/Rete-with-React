@@ -137,6 +137,9 @@ export async function createEditor(container) {
             return subnode;
         });
 
+        // Set the position property explicitly
+        node.position = { x: cfg.x, y: cfg.y };
+
         await editor.addNode(node);
         await area.translate(node.id, { x: cfg.x, y: cfg.y });
         return node;
@@ -193,5 +196,7 @@ export async function createEditor(container) {
     return {
         destroy: () => area.destroy(),
         addNode, // Return the reference to addNode
+        getNodes: () => editor.getNodes(),
+        getConnections: () => editor.getConnections(),
     };
 }
