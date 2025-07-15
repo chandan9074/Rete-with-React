@@ -21,10 +21,133 @@ export async function createEditor(container) {
     const connection = new ConnectionPlugin();
     const render = new ReactPlugin({ createRoot });
 
+    // Mount plugins
+    editor.use(area);
+    area.use(connection);
+    area.use(render);
+
+    window.reteEditor = editor;
+
     // Enable node selection
     AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
         accumulating: AreaExtensions.accumulateOnCtrl(),
     });
+
+    // area.emit({
+    //     type: "contextmenu",
+    //     data: {
+    //         event: new MouseEvent("contextmenu", {
+    //             clientX: 100,
+    //             clientY: 100,
+    //         }),
+    //         node: { id: "test-node" },
+    //     },
+    // });
+
+    // // Menu state
+    // let menuVisible = false;
+    // let menuPosition = { x: 0, y: 0 };
+    // let selectedNodeId = null;
+
+    // // Create menu element
+    // const menuElement = document.createElement("div");
+    // menuElement.className =
+    //     "absolute bg-gray-700 text-white rounded shadow-md p-2";
+    // menuElement.style.display = "none";
+    // menuElement.style.zIndex = "1000";
+    // document.body.appendChild(menuElement);
+
+    // // Add menu options
+    // const duplicateOption = document.createElement("div");
+    // duplicateOption.className = "p-2 hover:bg-gray-600 cursor-pointer";
+    // duplicateOption.innerText = "Duplicate";
+    // duplicateOption.onclick = () => {
+    //     console.log("Duplicate clicked");
+    //     menuElement.style.display = "none";
+    //     if (selectedNodeId) {
+    //         const node = editor.getNode(selectedNodeId);
+    //         if (node) {
+    //             const newNode = {
+    //                 ...node.data,
+    //                 id: `node${Date.now()}`,
+    //                 x: node.position.x + 50,
+    //                 y: node.position.y + 50,
+    //             };
+    //             editor.addNode(newNode);
+    //         }
+    //     }
+    // };
+
+    // const deleteOption = document.createElement("div");
+    // deleteOption.className = "p-2 hover:bg-gray-600 cursor-pointer";
+    // deleteOption.innerText = "Delete";
+    // deleteOption.onclick = () => {
+    //     console.log("Delete clicked");
+    //     menuElement.style.display = "none";
+    //     if (selectedNodeId) {
+    //         editor.removeNode(selectedNodeId);
+    //     }
+    // };
+
+    // const copyOption = document.createElement("div");
+    // copyOption.className = "p-2 hover:bg-gray-600 cursor-pointer";
+    // copyOption.innerText = "Copy";
+    // copyOption.onclick = () => {
+    //     console.log("Copy clicked");
+    //     menuElement.style.display = "none";
+    //     // Implement copy logic here
+    // };
+
+    // menuElement.appendChild(duplicateOption);
+    // menuElement.appendChild(deleteOption);
+    // menuElement.appendChild(copyOption);
+
+    // // Show menu
+    // const showMenu = (x, y, nodeId) => {
+    //     menuVisible = true;
+    //     menuPosition = { x, y };
+    //     selectedNodeId = nodeId;
+    //     menuElement.style.display = "block";
+    //     menuElement.style.left = `${x}px`;
+    //     menuElement.style.top = `${y}px`;
+    // };
+
+    // // Hide menu
+    // const hideMenu = () => {
+    //     menuVisible = false;
+    //     menuElement.style.display = "none";
+    // };
+
+    // // Add event listener for right-click on nodes
+    // area.addPipe((context) => {
+    //     console.log("Context data:", context);
+    //     if (context.type === "contextmenu") {
+    //         const { event, node } = context.data;
+    //         console.log("nodecontextmenu event triggered:", { event, node });
+
+    //         // Prevent the browser's default context menu
+    //         if (event && event.preventDefault) {
+    //             event.preventDefault();
+    //         }
+
+    //         // Show the custom menu
+    //         showMenu(event.clientX, event.clientY, node.id);
+    //         return;
+    //     }
+    //     return context;
+    // });
+
+    // container.addEventListener("contextmenu", (event) => {
+    //     event.preventDefault();
+    //     console.log("Browser context menu prevented globally");
+    // });
+
+    // // Add event listener for clicks outside the menu
+    // document.addEventListener("mousedown", (event) => {
+    //     if (!menuElement.contains(event.target)) {
+    //         hideMenu();
+    //     }
+    // });
 
     // Register React preset with custom components
     render.addPreset(
@@ -48,11 +171,6 @@ export async function createEditor(container) {
 
     // Add background styling
     addCustomBackground(area);
-
-    // Mount plugins
-    editor.use(area);
-    area.use(connection);
-    area.use(render);
 
     // Order nodes simply
     AreaExtensions.simpleNodesOrder(area);
@@ -157,6 +275,33 @@ export async function createEditor(container) {
         makeNode(newNode); // Create and render the node
     };
 
+    // Remove node function to update nodeConfigs and editor
+    const removeNode = async (nodeId) => {
+        try {
+            // Remove node from editor
+            const node = editor.getNode(nodeId);
+            if (node) {
+                // Remove associated connections
+                const connections = editor
+                    .getConnections()
+                    .filter(
+                        (conn) =>
+                            conn.source === nodeId || conn.target === nodeId
+                    );
+                for (const conn of connections) {
+                    await editor.removeConnection(conn.id);
+                }
+                // Remove node from editor and area
+                await editor.removeNode(nodeId);
+                await area.removeNodeView(nodeId);
+                // Update nodeConfigs
+                nodeConfigs = nodeConfigs.filter((cfg) => cfg.id !== nodeId);
+            }
+        } catch (error) {
+            console.error("Error removing node:", error);
+        }
+    };
+
     // Add connection validation to ensure socket compatibility
     connection.addPipe((context) => {
         if (context.type === "connectioncreate") {
@@ -198,5 +343,6 @@ export async function createEditor(container) {
         addNode, // Return the reference to addNode
         getNodes: () => editor.getNodes(),
         getConnections: () => editor.getConnections(),
+        removeNode,
     };
 }

@@ -75,9 +75,8 @@ export default function App() {
         if (editorContainerRef.current) {
             const { addNode } = editorContainerRef.current.editor;
             console.log({ addNode });
-            addNode(newNode).then(() => {
-                console.log("Node added successfully");
-            });
+            addNode(newNode);
+
             // editor.addNode(newNode); // Add the new node directly to the editor
         }
     };
@@ -110,7 +109,8 @@ export default function App() {
                 connections,
             };
 
-            console.log("Editor Data:", JSON.stringify(data, null, 2));
+            // console.log("Editor Data:", JSON.stringify(data, null, 2));
+            console.log("Editor Data:", data);
         }
     };
 
