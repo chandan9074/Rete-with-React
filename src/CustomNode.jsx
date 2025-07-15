@@ -13,7 +13,7 @@ function sortByIndex(entries) {
 }
 
 export function CustomNode(props) {
-    const { data, styles: stylesFn, emit } = props;
+    const { data, styles: stylesFn, emit, deleteNode, duplicateNode } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);
     const controls = Object.entries(data.controls);
@@ -23,16 +23,11 @@ export function CustomNode(props) {
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const nodeRef = useRef(null); // Reference to the node element
     const menuRef = useRef(null);
-    const duplicateButtonRef = useRef(null);
 
     // Sort inputs, outputs, and controls by index
     sortByIndex(inputs);
     sortByIndex(outputs);
     sortByIndex(controls);
-
-    // Determine node dimensions
-    const nodeWidth = Number.isFinite(width) ? width : 200;
-    const nodeHeight = Number.isFinite(height) ? height : undefined;
 
     // Compute any extra styles passed via props.styles
     const extraStyle = typeof stylesFn === "function" ? stylesFn(props) : {};
@@ -54,17 +49,27 @@ export function CustomNode(props) {
         }
     };
 
-    const handleMenuOptionClick = (event, option) => {
+    const handleMenuOptionClick = async (event, option) => {
         event.stopPropagation();
-        console.log(`Menu option clicked: ${option}`);
-        setMenuVisible(false);
-        console.log(`Option selected: ${option}`);
-        if (option === "Delete") {
-            if (window.reteEditor) {
-                window.reteEditor.removeNode(id);
-            } else {
-                console.error("Editor instance not found");
-            }
+
+        switch (option) {
+            case "Duplicate":
+                // Logic to duplicate the node
+                console.log(`Duplicating node with ID: ${id}`);
+                duplicateNode(id);
+                // Here you would typically clone the node and add it to the editor
+                break;
+            case "Copy":
+                // Logic to copy the node
+                console.log(`Copying node with ID: ${id}`);
+                break;
+            case "Delete":
+                // Logic to delete the node
+                deleteNode(id);
+                console.log(`Deleting node with ID: ${id}`);
+                break;
+            default:
+                console.warn(`Unknown menu option: ${option}`);
         }
     };
 
@@ -76,29 +81,15 @@ export function CustomNode(props) {
             !nodeRef.current.contains(event.target) &&
             !event.target.closest(".p-2")
         ) {
+            console.log("Clicked outside the node or menu");
             setMenuVisible(false); // Close the menu if clicked outside
         }
     };
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
-
-        // Attach click listener to the "Duplicate" button using ref
-        if (duplicateButtonRef.current) {
-            duplicateButtonRef.current.addEventListener("click", (e) =>
-                handleMenuOptionClick(e, "Duplicate")
-            );
-        }
-
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
-
-            // Cleanup the event listener for the "Duplicate" button
-            if (duplicateButtonRef.current) {
-                duplicateButtonRef.current.removeEventListener("click", (e) =>
-                    handleMenuOptionClick(e, "Duplicate")
-                );
-            }
         };
     }, []);
 
@@ -118,17 +109,6 @@ export function CustomNode(props) {
                 <div className="text-white text-lg font-bold mb-4 text-center">
                     {label || "Custom Node"}
                 </div>
-                <button
-                    className="cursor-pointer"
-                    style={{ pointerEvents: "auto", zIndex: 1000 }}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        console.log("Button clicked", e);
-                    }}
-                >
-                    Click here
-                </button>
-
                 {/* Sockets Row */}
                 <div className="flex justify-between">
                     {/* Inputs */}
@@ -248,20 +228,23 @@ export function CustomNode(props) {
                     }}
                 >
                     <button
-                        ref={duplicateButtonRef} // Attach ref to the "Duplicate" button
+                        onClick={(e) => handleMenuOptionClick(e, "Duplicate")}
                         className="p-2 hover:bg-gray-600 cursor-pointer"
+                        onPointerDown={(e) => e.stopPropagation()}
                     >
                         Duplicate
                     </button>
                     <div
                         className="p-2 hover:bg-gray-600 cursor-pointer"
                         onClick={(e) => handleMenuOptionClick(e, "Delete")}
+                        onPointerDown={(e) => e.stopPropagation()}
                     >
                         Delete
                     </div>
                     <div
                         className="p-2 hover:bg-gray-600 cursor-pointer"
                         onClick={() => handleMenuOptionClick("Copy")}
+                        onPointerDown={(e) => e.stopPropagation()}
                     >
                         Copy
                     </div>
