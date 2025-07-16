@@ -10,6 +10,11 @@ import { CustomNode } from "./CustomNode";
 import { CustomSocket } from "./CustomSocket";
 import { CustomConnection } from "./CustomConnection";
 import { addCustomBackground } from "./custom-background";
+import {
+    HistoryExtensions,
+    HistoryPlugin,
+    Presets as HistoryPresets,
+} from "rete-history-plugin";
 
 export async function createEditor(container) {
     const socket = new ClassicPreset.Socket("socket");
@@ -19,11 +24,20 @@ export async function createEditor(container) {
     const area = new AreaPlugin(container);
     const connection = new ConnectionPlugin();
     const render = new ReactPlugin({ createRoot });
+    const history = new HistoryPlugin();
+
+    HistoryExtensions.keyboard(history, {
+        undo: ["ctrl+z", "cmd+z"], // Keep undo as it is
+        redo: ["ctrl+shift+a", "cmd+shift+z"], // Change redo to Ctrl+Shift+Z (Cmd+Shift+Z on macOS)
+    });
+
+    history.addPreset(HistoryPresets.classic.setup());
 
     // Mount plugins
     editor.use(area);
     area.use(connection);
     area.use(render);
+    area.use(history);
 
     // Enable node selection
     AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {

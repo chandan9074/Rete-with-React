@@ -1497,6 +1497,13 @@ rete-context-menu-plugin@^2.0.6:
   dependencies:
     "@babel/runtime" "^7.21.0"
 
+rete-history-plugin@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/rete-history-plugin/-/rete-history-plugin-2.1.0.tgz#85aa5d2f7de7976f0b37fb010d2da31dd283068b"
+  integrity sha512-BJgVByJy+Z2fxQRu0oaE5Gio0U0CRLzJQ25TewzlUzOJ0ZOdzNN3WMtrqq9aPHAotyz5mdjyWgb9ZqQhhyLSAg==
+  dependencies:
+    "@babel/runtime" "^7.21.0"
+
 rete-react-plugin@^2.0.7:
   version "2.0.7"
   resolved "https://registry.yarnpkg.com/rete-react-plugin/-/rete-react-plugin-2.0.7.tgz#cb6ba6d82f36d7d1bc1a69bd6cd1ed23a620d345"
