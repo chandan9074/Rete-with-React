@@ -15,11 +15,11 @@ export function CustomConnection({ styles, ...props }) {
     return (
         <svg
             data-testid="connection"
-            className="absolute overflow-visible pointer-events-none w-[9999px] h-[9999px]"
+            className="absolute overflow-visible pointer-events-none w-[9999px] h-[9999px] -left-2.5 -top-2.5"
         >
             <path
                 d={path}
-                className="fill-none stroke-[5px] stroke-black pointer-events-auto"
+                className="fill-none stroke-[5px] stroke-gray-200 pointer-events-auto"
                 style={extraStyle}
             />
         </svg>

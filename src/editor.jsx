@@ -15,6 +15,7 @@ import {
     HistoryPlugin,
     Presets as HistoryPresets,
 } from "rete-history-plugin";
+import NodeWrapper from "./NodeWrapper";
 
 export async function createEditor(container) {
     const socket = new ClassicPreset.Socket("socket");
@@ -50,7 +51,12 @@ export async function createEditor(container) {
             customize: {
                 node(context) {
                     return (props) => (
-                        <CustomNode
+                        // <CustomNode
+                        //     {...props}
+                        //     deleteNode={deleteNode}
+                        //     duplicateNode={duplicateNode}
+                        // />
+                        <NodeWrapper
                             {...props}
                             deleteNode={deleteNode}
                             duplicateNode={duplicateNode}

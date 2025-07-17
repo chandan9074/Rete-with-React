@@ -3,6 +3,7 @@ import React from "react";
 
 export function CustomSocket({ data }) {
     const size = 16;
+    console.log({ data });
 
     return (
         <div
@@ -10,15 +11,13 @@ export function CustomSocket({ data }) {
             className="
         inline-block
         cursor-pointer
-        border
-        border-gray-400
         align-middle
-        bg-white
+        bg-gray-200
         box-border
         z-10
         hover:bg-gray-200
+        w-4 h-4 rounded-full
       "
-            style={{ width: size, height: size * 2 }}
         />
     );
 }

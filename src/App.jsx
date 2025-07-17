@@ -121,6 +121,7 @@ export default function App() {
             {/* Button to add nodes */}
             <div
                 ref={editorContainerRef}
+                className="bg-[#2D2E2E]"
                 style={{ height: "100vh", width: "100vw" }}
             ></div>
         </div>
