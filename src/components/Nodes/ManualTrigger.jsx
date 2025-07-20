@@ -13,7 +13,7 @@ function sortByIndex(entries) {
     });
 }
 
-export function TriggerNode(props) {
+export function ManualTrigger(props) {
     const { data, styles: stylesFn, emit, deleteNode, duplicateNode } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);

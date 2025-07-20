@@ -1,7 +1,9 @@
-import { TriggerNode } from "./TriggerNode";
+import { ManualTrigger } from "./ManualTrigger";
+import { ScheduleTrigger } from "./ScheduleTrigger";
 
 const Nodes = {
-    TriggerNode,
+    ManualTrigger,
+    ScheduleTrigger,
 };
 
 export default Nodes;
