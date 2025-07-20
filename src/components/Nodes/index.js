@@ -6,6 +6,8 @@ import { Webhook } from "./Webhook";
 import { EditFields } from "./EditFields";
 import { ExtractFromFile } from "./ExtractFromFile";
 import { AiAgent } from "./AiAgent";
+import { GoogleSheet } from "./GoogleSheet";
+import { Aggregate } from "./Aggregate";
 
 const Nodes = {
     ManualTrigger,
@@ -16,6 +18,8 @@ const Nodes = {
     EditFields,
     ExtractFromFile,
     AiAgent,
+    GoogleSheet,
+    Aggregate,
 };
 
 export default Nodes;
