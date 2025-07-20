@@ -5,6 +5,7 @@ import { Code } from "./Code";
 import { Webhook } from "./Webhook";
 import { EditFields } from "./EditFields";
 import { ExtractFromFile } from "./ExtractFromFile";
+import { AiAgent } from "./AiAgent";
 
 const Nodes = {
     ManualTrigger,
@@ -14,6 +15,7 @@ const Nodes = {
     Webhook,
     EditFields,
     ExtractFromFile,
+    AiAgent,
 };
 
 export default Nodes;
