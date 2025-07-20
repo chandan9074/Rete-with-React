@@ -4,6 +4,7 @@ import { HttpRequest } from "./HttpRequest";
 import { Code } from "./Code";
 import { Webhook } from "./Webhook";
 import { EditFields } from "./EditFields";
+import { ExtractFromFile } from "./ExtractFromFile";
 
 const Nodes = {
     ManualTrigger,
@@ -12,6 +13,7 @@ const Nodes = {
     Code,
     Webhook,
     EditFields,
+    ExtractFromFile,
 };
 
 export default Nodes;
