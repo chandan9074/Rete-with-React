@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRete } from "rete-react-plugin";
 import { createEditor } from "./editor";
+import { HiPlusSm } from "react-icons/hi";
+import SideDrawer from "./components/SideDrawer";
 
 export default function App() {
+    const [open, setOpen] = useState(false); // State to manage the side drawer visibility
     // const [editorInstance, setEditorInstance] = useState(null); // Store editor instance
     // const [ref, addNode] = useRete(createEditor); // Get the ref but don't destructure addNode here
 
@@ -116,9 +119,17 @@ export default function App() {
 
     return (
         <div className="App">
-            <button onClick={handleAddNode}>Add Node</button>{" "}
-            <button onClick={handleSubmit}>Submit</button>{" "}
+            {/* <button onClick={handleAddNode}>Add Node</button>{" "}
+            <button onClick={handleSubmit}>Submit</button>{" "} */}
             {/* Button to add nodes */}
+
+            <button
+                onClick={() => setOpen(true)}
+                className="absolute top-5 right-10 p-1 border border-gray-300 rounded-md cursor-pointer"
+            >
+                <HiPlusSm className="text-4xl text-gray-300" />
+            </button>
+            <SideDrawer open={open} setOpen={setOpen} />
             <div
                 ref={editorContainerRef}
                 className="bg-[#2D2E2E]"
