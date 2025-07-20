@@ -15,7 +15,7 @@ export function CustomConnection({ styles, ...props }) {
     return (
         <svg
             data-testid="connection"
-            className="absolute overflow-visible pointer-events-none w-[9999px] h-[9999px] -left-2.5 -top-2.5"
+            className="absolute overflow-visible pointer-events-none w-[9999px] h-[9999px] -top-2.5"
         >
             <path
                 d={path}
