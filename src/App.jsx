@@ -62,8 +62,8 @@ export default function App() {
     }, []); // Empty dependency array ensures this runs only once
 
     // Handle drag-and-drop to add a new node
-    const handleAddNode = (event) => {
-        event.preventDefault();
+    const handleAddNode = (item) => {
+        // event.preventDefault();
         const newNode = {
             label: "New Node",
             id: `node${Date.now()}`, // Unique ID
@@ -71,7 +71,8 @@ export default function App() {
             y: Math.random() * 500, // Random position
             inputs: ["a"],
             outputs: ["a"],
-            subnodes: [{ id: "sub3", label: "Child 3" }],
+            slug: item.slug, // Use the slug from the item
+            // subnodes: [{ id: "sub3", label: "Child 3" }],
         };
 
         // Dynamically add the new node to the editor
@@ -85,7 +86,7 @@ export default function App() {
     };
 
     // Handle submit button click to log nodes and connections
-    const handleSubmit = () => {
+    const handleSubmit = (item) => {
         if (editorContainerRef.current) {
             const editor = editorContainerRef.current.editor;
             const nodes = editor.getNodes().map((node) => {
@@ -96,7 +97,6 @@ export default function App() {
                     position: { x: node.position.x, y: node.position.y },
                     inputs: Object.keys(node.inputs),
                     outputs: Object.keys(node.outputs),
-                    subnodes: node.data.subnodes || [],
                 };
             });
 
@@ -129,7 +129,11 @@ export default function App() {
             >
                 <HiPlusSm className="text-4xl text-gray-300" />
             </button>
-            <SideDrawer open={open} setOpen={setOpen} />
+            <SideDrawer
+                open={open}
+                setOpen={setOpen}
+                handleSubmit={handleAddNode}
+            />
             <div
                 ref={editorContainerRef}
                 className="bg-[#2D2E2E]"

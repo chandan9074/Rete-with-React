@@ -91,34 +91,13 @@ export async function createEditor(container) {
             y: 0,
             inputs: ["a"],
             outputs: ["a"],
-            subnodes: [
-                {
-                    id: "sub1",
-                    label: "Child 1",
-                    inputs: ["in"], // Define input for subnode
-                    outputs: ["out"], // Define output for subnode
-                },
-                {
-                    id: "sub2",
-                    label: "Child 2",
-                    inputs: ["in"], // Define input for subnode
-                    outputs: ["out"], // Define output for subnode
-                },
-            ],
-        },
-        {
-            label: "Parent Node B",
-            id: "node2",
-            x: 300,
-            y: 0,
-            inputs: ["a"],
-            outputs: ["a"],
-            subnodes: [],
+            slug: "triggerManually",
         },
     ];
 
     // Helper function to create nodes
     async function makeNode(cfg) {
+        console.log({ cfg });
         const node = new ClassicPreset.Node(cfg.label);
 
         // Add parent node inputs with multiple connections enabled
@@ -132,38 +111,39 @@ export async function createEditor(container) {
         );
 
         // Add subnodes with inputs and outputs supporting multiple connections
-        node.data = {};
-        node.data.subnodes = (cfg.subnodes || []).map((sn) => {
-            const subnode = {
-                ...sn,
-                socket,
-                inputs: {},
-                outputs: {},
-            };
+        // node.data = {};
+        // node.data.subnodes = (cfg.subnodes || []).map((sn) => {
+        //     const subnode = {
+        //         ...sn,
+        //         socket,
+        //         inputs: {},
+        //         outputs: {},
+        //     };
 
-            // Add input socket for subnode with multiple connections
-            (sn.inputs || []).forEach((key) => {
-                subnode.inputs[key] = new ClassicPreset.Input(
-                    socket,
-                    key,
-                    true
-                );
-            });
+        //     // Add input socket for subnode with multiple connections
+        //     (sn.inputs || []).forEach((key) => {
+        //         subnode.inputs[key] = new ClassicPreset.Input(
+        //             socket,
+        //             key,
+        //             true
+        //         );
+        //     });
 
-            // Add output socket for subnode with multiple connections
-            (sn.outputs || []).forEach((key) => {
-                subnode.outputs[key] = new ClassicPreset.Output(
-                    socket,
-                    key,
-                    true
-                );
-            });
+        //     // Add output socket for subnode with multiple connections
+        //     (sn.outputs || []).forEach((key) => {
+        //         subnode.outputs[key] = new ClassicPreset.Output(
+        //             socket,
+        //             key,
+        //             true
+        //         );
+        //     });
 
-            return subnode;
-        });
+        //     return subnode;
+        // });
 
         // Set the position property explicitly
         node.position = { x: cfg.x, y: cfg.y };
+        node.slug = cfg.slug; // Add slug to the node data
 
         await editor.addNode(node);
         await area.translate(node.id, { x: cfg.x, y: cfg.y });
