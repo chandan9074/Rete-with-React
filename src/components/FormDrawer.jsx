@@ -1,0 +1,60 @@
+import { ConfigProvider, Drawer } from "antd";
+import React from "react";
+import HttpRequestForm from "./NodeForm/HttpRequestForm";
+
+const FormDrawer = ({
+    openFormDrawer,
+    handleFormDrawerClose,
+    selectedNode,
+}) => {
+    // Map slug values to corresponding components
+    const componentMap = {
+        httpRequest: HttpRequestForm,
+    };
+
+    // Select the component based on the slug
+    const SelectedComponent =
+        componentMap[selectedNode?.slug] || (() => <div></div>);
+
+    return (
+        <ConfigProvider
+            theme={{
+                token: {
+                    colorPrimary: "#2D2E2E",
+                    fontFamily: " 'Poppins', sans-serif",
+                    // colorTextBase: BLUE_TWO,
+                    colorTextBase: "#f4f4f4",
+                    fontSize: 14,
+                },
+                components: {
+                    Select: {
+                        /* here is your component tokens */
+                        colorBgContainer: "#2D2E2E",
+                        activeBorderColor: "#5b5c5c",
+                        hoverBorderColor: "#5b5c5c",
+                        activeOutlineColor: "#5b5c5c",
+                        colorBorder: "#5b5c5c",
+                        colorText: "#f4f4f4",
+                        colorTextPlaceholder: "#9a9a9b",
+                    },
+                    Input: {
+                        colorTextPlaceholder: "#9a9a9b",
+                    },
+                },
+            }}
+        >
+            <Drawer
+                width="520"
+                closable={false}
+                onClose={handleFormDrawerClose}
+                open={openFormDrawer}
+            >
+                <div className="w-full h-full bg-[#414244]">
+                    <SelectedComponent data={selectedNode} />
+                </div>
+            </Drawer>
+        </ConfigProvider>
+    );
+};
+
+export default FormDrawer;

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { CiGlobe } from "react-icons/ci";
 import { FaClock, FaMousePointer } from "react-icons/fa";
 import { Presets } from "rete-react-plugin";
+import { useCommon } from "../../context/CommonContextProvider";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -25,6 +26,8 @@ export function HttpRequest(props) {
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const nodeRef = useRef(null); // Reference to the node element
     const menuRef = useRef(null);
+    const { openFormDrawer, setOpenFormDrawer, selectedNode, setSelectedNode } =
+        useCommon();
 
     // Sort inputs, outputs, and controls by index
     sortByIndex(inputs);
@@ -95,6 +98,15 @@ export function HttpRequest(props) {
         };
     }, []);
 
+    const handleNodeDoubleClick = (event) => {
+        console.log("click");
+        event.stopPropagation(); // Prevent the context menu from appearing
+        console.log({ setOpenFormDrawer, openFormDrawer });
+        setOpenFormDrawer(true); // Open the form drawer
+        setSelectedNode(data); // Set the selected node in context
+        // Here you can handle the double-click event, like opening a form drawer
+    };
+
     return (
         <div>
             <div
@@ -108,7 +120,10 @@ export function HttpRequest(props) {
                 onContextMenu={handleRightClick}
             >
                 {/* Sockets Row */}
-                <div>
+                <div
+                    onDoubleClick={handleNodeDoubleClick}
+                    onPointerDown={(e) => e.stopPropagation()}
+                >
                     <CiGlobe className="text-5xl text-[#8F87F7]" />
                 </div>
 

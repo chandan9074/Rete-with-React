@@ -3,9 +3,10 @@ import { useRete } from "rete-react-plugin";
 import { createEditor } from "./editor";
 import { HiPlusSm } from "react-icons/hi";
 import SideDrawer from "./components/SideDrawer";
+import FormDrawer from "./components/FormDrawer";
+import { useCommon } from "./context/CommonContextProvider";
 
 export default function App() {
-    const [open, setOpen] = useState(false); // State to manage the side drawer visibility
     // const [editorInstance, setEditorInstance] = useState(null); // Store editor instance
     // const [ref, addNode] = useRete(createEditor); // Get the ref but don't destructure addNode here
 
@@ -40,6 +41,11 @@ export default function App() {
     //     }
     // };
 
+    const [open, setOpen] = useState(false); // State to manage the side drawer visibility
+    // const [openFormDrawer, setOpenFormDrawer] = useState(false); // State to manage the form drawer visibility
+    // const [selectedNode, setSelectedNode] = useState(null); // State to manage the selected node
+    const { openFormDrawer, setOpenFormDrawer, selectedNode, setSelectedNode } =
+        useCommon(); // Destructure the context to use common state if needed
     const editorContainerRef = useRef(null); // Reference to the editor container
     const editorInitialized = useRef(false); // To ensure the editor initializes only once
 
@@ -64,6 +70,9 @@ export default function App() {
     // Handle drag-and-drop to add a new node
     const handleAddNode = (item) => {
         // event.preventDefault();
+        setSelectedNode(item); // Set the selected node from the item
+        // setOpen(false); // Close the side drawer
+        setOpenFormDrawer(true); // Open the form drawer
         const newNode = {
             label: "New Node",
             id: `node${Date.now()}`, // Unique ID
@@ -116,6 +125,14 @@ export default function App() {
             console.log("Editor Data:", data);
         }
     };
+    const handleFormDrawerClose = () => {
+        setOpenFormDrawer(false);
+        setSelectedNode(null);
+    };
+
+    useEffect(() => {
+        console.log({ openFormDrawer, selectedNode });
+    }, [openFormDrawer, selectedNode]);
 
     return (
         <div className="App">
@@ -133,6 +150,11 @@ export default function App() {
                 open={open}
                 setOpen={setOpen}
                 handleSubmit={handleAddNode}
+            />
+            <FormDrawer
+                openFormDrawer={openFormDrawer}
+                handleFormDrawerClose={handleFormDrawerClose}
+                selectedNode={selectedNode}
             />
             <div
                 ref={editorContainerRef}

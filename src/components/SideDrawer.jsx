@@ -25,6 +25,8 @@ const SideDrawer = ({ open, setOpen, handleSubmit }) => {
         } else {
             // Handle the case when there are no children
             handleSubmit(item);
+            setOpen(false);
+            setChildrenDrawer(false);
         }
     };
 
@@ -80,7 +82,7 @@ const SideDrawer = ({ open, setOpen, handleSubmit }) => {
                                 <div
                                     key={item.id}
                                     className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#4e4f52] duration-300 cursor-pointer"
-                                    onClick={() => handleSubmit(item)}
+                                    onClick={() => handleParentItemClick(item)}
                                 >
                                     <div className="flex items-center gap-4">
                                         {item.icon}

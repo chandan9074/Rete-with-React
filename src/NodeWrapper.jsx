@@ -1,5 +1,6 @@
 import React from "react";
 import Nodes from "./components/Nodes";
+import CommonContextProvider from "./context/CommonContextProvider";
 
 const NodeWrapper = (props) => {
     const { data } = props;
@@ -26,7 +27,11 @@ const NodeWrapper = (props) => {
     console.log({ data });
 
     // Render the selected component
-    return <SelectedComponent {...props} />;
+    return (
+        <CommonContextProvider>
+            <SelectedComponent {...props} />
+        </CommonContextProvider>
+    );
 };
 
 export default NodeWrapper;
