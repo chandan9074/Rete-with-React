@@ -1,6 +1,7 @@
 import { ConfigProvider, Drawer } from "antd";
 import React from "react";
 import HttpRequestForm from "./NodeForm/HttpRequestForm";
+import ScheduleTriggerForm from "./NodeForm/ScheduleTriggerForm";
 
 const FormDrawer = ({
     openFormDrawer,
@@ -10,6 +11,7 @@ const FormDrawer = ({
     // Map slug values to corresponding components
     const componentMap = {
         httpRequest: HttpRequestForm,
+        onASchedule: ScheduleTriggerForm,
     };
 
     // Select the component based on the slug
@@ -36,6 +38,7 @@ const FormDrawer = ({
                         colorBorder: "#5b5c5c",
                         colorText: "#f4f4f4",
                         colorTextPlaceholder: "#9a9a9b",
+                        selectorBg: "#2D2E2E",
                     },
                     Input: {
                         colorTextPlaceholder: "#9a9a9b",

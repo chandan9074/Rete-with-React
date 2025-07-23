@@ -50,6 +50,7 @@ const HttpRequestForm = ({ data }) => {
                         ]}
                     >
                         <Select
+                            dropdownStyle={{ backgroundColor: "#2D2E2E" }}
                             options={[
                                 {
                                     value: "GET",
