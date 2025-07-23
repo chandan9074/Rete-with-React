@@ -49,7 +49,7 @@ const FormDrawer = ({
                 onClose={handleFormDrawerClose}
                 open={openFormDrawer}
             >
-                <div className="w-full h-full bg-[#414244]">
+                <div className="w-full h-screen overflow-auto bg-[#414244]">
                     <SelectedComponent data={selectedNode} />
                 </div>
             </Drawer>

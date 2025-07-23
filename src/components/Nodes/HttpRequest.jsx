@@ -121,8 +121,8 @@ export function HttpRequest(props) {
             >
                 {/* Sockets Row */}
                 <div
-                    onDoubleClick={handleNodeDoubleClick}
-                    onPointerDown={(e) => e.stopPropagation()}
+                // onDoubleClick={handleNodeDoubleClick}
+                // onPointerDown={(e) => e.stopPropagation()}
                 >
                     <CiGlobe className="text-5xl text-[#8F87F7]" />
                 </div>
