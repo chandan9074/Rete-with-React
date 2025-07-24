@@ -20,6 +20,8 @@ import NodeWrapper from "./NodeWrapper";
 export async function createEditor(container, contextProps) {
     const socket = new ClassicPreset.Socket("socket");
 
+    const { nodeList, setNodeList } = contextProps;
+
     // Initialize editor and plugins
     const editor = new NodeEditor();
     const area = new AreaPlugin(container);
@@ -153,13 +155,14 @@ export async function createEditor(container, contextProps) {
 
     // Loop over the initial nodeConfigs and create nodes
     const created = {};
-    for (let cfg of nodeConfigs) {
+    for (let cfg of nodeList) {
         created[cfg.id] = await makeNode(cfg);
     }
 
     // Dynamically add node function triggered by App.js
     const addNode = (newNode) => {
-        nodeConfigs.push(newNode); // Add to the array
+        // nodeConfigs.push(newNode); // Add to the array
+        setNodeList((prev) => [...prev, newNode]); // Update the context state
         makeNode(newNode); // Create and render the node
     };
 

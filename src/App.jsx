@@ -48,6 +48,17 @@ export default function App() {
         useCommon(); // Destructure the context to use common state if needed
     const editorContainerRef = useRef(null); // Reference to the editor container
     const editorInitialized = useRef(false); // To ensure the editor initializes only once
+    const [nodeList, setNodeList] = useState([
+        {
+            label: "Parent Node A",
+            id: "node1",
+            x: 0,
+            y: 0,
+            inputs: ["a"],
+            outputs: ["a"],
+            slug: "triggerManually",
+        },
+    ]); // State to manage the list of nodes
 
     useEffect(() => {
         if (!editorInitialized.current) {
@@ -60,6 +71,8 @@ export default function App() {
                 setOpenFormDrawer,
                 selectedNode,
                 setSelectedNode,
+                setNodeList,
+                nodeList,
             })
                 .then((editorInstance) => {
                     console.log("Editor initialized successfully");
@@ -142,7 +155,7 @@ export default function App() {
     return (
         <div className="App">
             {/* <button onClick={handleAddNode}>Add Node</button>{" "} */}
-            <button onClick={handleSubmit}>Submit</button>{" "}
+            {/* <button onClick={handleSubmit}>Submit</button>{" "} */}
             {/* Button to add nodes */}
             <button
                 onClick={() => setOpen(true)}
@@ -159,6 +172,7 @@ export default function App() {
                 openFormDrawer={openFormDrawer}
                 handleFormDrawerClose={handleFormDrawerClose}
                 selectedNode={selectedNode}
+                setNodeList
             />
             <div
                 ref={editorContainerRef}
