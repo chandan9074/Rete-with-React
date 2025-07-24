@@ -1,18 +1,25 @@
 import { ConfigProvider, Drawer } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import HttpRequestForm from "./NodeForm/HttpRequestForm";
 import ScheduleTriggerForm from "./NodeForm/ScheduleTriggerForm";
+import { useCommon } from "../context/CommonContextProvider";
 
 const FormDrawer = ({
     openFormDrawer,
     handleFormDrawerClose,
     selectedNode,
 }) => {
+    // const { openFormDrawer } = useCommon();
+
     // Map slug values to corresponding components
     const componentMap = {
         httpRequest: HttpRequestForm,
         onASchedule: ScheduleTriggerForm,
     };
+
+    useEffect(() => {
+        console.log(openFormDrawer, "openFormDrawer in FormDrawer");
+    }, [openFormDrawer]);
 
     // Select the component based on the slug
     const SelectedComponent =

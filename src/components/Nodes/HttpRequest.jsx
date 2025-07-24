@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CiGlobe } from "react-icons/ci";
-import { FaClock, FaMousePointer } from "react-icons/fa";
+import { FaClock, FaMousePointer, FaPlay } from "react-icons/fa";
 import { Presets } from "rete-react-plugin";
 import { useCommon } from "../../context/CommonContextProvider";
+import { MdDelete } from "react-icons/md";
+import { BsThreeDots } from "react-icons/bs";
+import { IoIosSettings } from "react-icons/io";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -16,7 +19,17 @@ function sortByIndex(entries) {
 }
 
 export function HttpRequest(props) {
-    const { data, styles: stylesFn, emit, deleteNode, duplicateNode } = props;
+    const {
+        data,
+        styles: stylesFn,
+        emit,
+        deleteNode,
+        duplicateNode,
+        openFormDrawer,
+        setOpenFormDrawer,
+        selectedNode,
+        setSelectedNode,
+    } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);
     const controls = Object.entries(data.controls);
@@ -26,8 +39,8 @@ export function HttpRequest(props) {
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const nodeRef = useRef(null); // Reference to the node element
     const menuRef = useRef(null);
-    const { openFormDrawer, setOpenFormDrawer, selectedNode, setSelectedNode } =
-        useCommon();
+    // const { openFormDrawer, setOpenFormDrawer, selectedNode, setSelectedNode } =
+    //     useCommon();
 
     // Sort inputs, outputs, and controls by index
     sortByIndex(inputs);
@@ -108,7 +121,7 @@ export function HttpRequest(props) {
     };
 
     return (
-        <div>
+        <div className="group">
             <div
                 ref={nodeRef} // Attach the ref to the node element
                 data-testid="node"
@@ -148,7 +161,10 @@ export function HttpRequest(props) {
                             <RefSocket
                                 side="output"
                                 emit={emit}
-                                socketKey={key}
+                                socketonClick={(e) =>
+                                    handleMenuOptionClick(e, "Delete")
+                                }
+                                // onPointerDown={(e) => e.stopPropagation()}Key={key}
                                 nodeId={id}
                                 payload={output.socket}
                                 style={{ cursor: "pointer" }}
@@ -183,7 +199,7 @@ export function HttpRequest(props) {
                     </div>
                 )}
             </div>
-            {menuVisible && (
+            {/* {menuVisible && (
                 <div
                     ref={menuRef}
                     className="absolute bg-gray-700 text-white rounded shadow-md p-2"
@@ -215,7 +231,29 @@ export function HttpRequest(props) {
                         Copy
                     </div>
                 </div>
-            )}
+            )} */}
+            <div className="absolute -top-10 w-full p-3  group-hover:flex hidden items-center justify-center gap-2.5">
+                <button className="cursor-pointer">
+                    <FaPlay className="text-sm text-gray-500" />
+                </button>
+                <button
+                    className="cursor-pointer"
+                    onClick={(e) => handleMenuOptionClick(e, "Delete")}
+                    // onPointerDown={(e) => e.stopPropagation()}
+                >
+                    <MdDelete className="text-lg text-gray-500" />
+                </button>
+                <button
+                    className="cursor-pointer"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={handleNodeDoubleClick}
+                >
+                    <IoIosSettings className="text-lg text-gray-500" />
+                </button>
+                <button className="cursor-pointer">
+                    <BsThreeDots className="text-lg text-gray-500" />
+                </button>
+            </div>
         </div>
     );
 }

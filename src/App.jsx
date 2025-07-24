@@ -55,7 +55,12 @@ export default function App() {
             editorInitialized.current = true;
 
             // Initialize the editor
-            createEditor(editorContainerRef.current)
+            createEditor(editorContainerRef.current, {
+                openFormDrawer,
+                setOpenFormDrawer,
+                selectedNode,
+                setSelectedNode,
+            })
                 .then((editorInstance) => {
                     console.log("Editor initialized successfully");
                     console.log({ editorInstance });
@@ -132,14 +137,13 @@ export default function App() {
 
     useEffect(() => {
         console.log({ openFormDrawer, selectedNode });
-    }, [openFormDrawer, selectedNode]);
+    }, [openFormDrawer]);
 
     return (
         <div className="App">
-            {/* <button onClick={handleAddNode}>Add Node</button>{" "}
-            <button onClick={handleSubmit}>Submit</button>{" "} */}
+            {/* <button onClick={handleAddNode}>Add Node</button>{" "} */}
+            <button onClick={handleSubmit}>Submit</button>{" "}
             {/* Button to add nodes */}
-
             <button
                 onClick={() => setOpen(true)}
                 className="absolute top-5 right-10 p-1 border border-gray-300 rounded-md cursor-pointer"

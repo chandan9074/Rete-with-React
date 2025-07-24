@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaMousePointer } from "react-icons/fa";
+import { BsThreeDots } from "react-icons/bs";
+import { FaMousePointer, FaPlay } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 import { Presets } from "rete-react-plugin";
 
 const { RefSocket, RefControl } = Presets.classic;
@@ -95,7 +97,7 @@ export function ManualTrigger(props) {
     }, []);
 
     return (
-        <div>
+        <div className="group">
             <div
                 ref={nodeRef} // Attach the ref to the node element
                 data-testid="node"
@@ -152,7 +154,22 @@ export function ManualTrigger(props) {
                     </div>
                 )}
             </div>
-            {menuVisible && (
+            <div className="absolute -top-10 w-full p-3  group-hover:flex hidden items-center justify-center gap-2.5">
+                <button className="cursor-pointer">
+                    <FaPlay className="text-sm text-gray-500" />
+                </button>
+                <button
+                    className="cursor-pointer"
+                    onClick={(e) => handleMenuOptionClick(e, "Delete")}
+                    onPointerDown={(e) => e.stopPropagation()}
+                >
+                    <MdDelete className="text-lg text-gray-500" />
+                </button>
+                <button className="cursor-pointer">
+                    <BsThreeDots className="text-lg text-gray-500" />
+                </button>
+            </div>
+            {/* {menuVisible && (
                 <div
                     ref={menuRef}
                     className="absolute bg-gray-700 text-white rounded shadow-md p-2"
@@ -184,7 +201,7 @@ export function ManualTrigger(props) {
                         Copy
                     </div>
                 </div>
-            )}
+            )} */}
         </div>
     );
 }

@@ -27,11 +27,7 @@ const NodeWrapper = (props) => {
     console.log({ data });
 
     // Render the selected component
-    return (
-        <CommonContextProvider>
-            <SelectedComponent {...props} />
-        </CommonContextProvider>
-    );
+    return <SelectedComponent {...props} />;
 };
 
 export default NodeWrapper;
