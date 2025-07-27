@@ -101,7 +101,7 @@ export async function createEditor(container, contextProps) {
     // Helper function to create nodes
     async function makeNode(cfg) {
         console.log({ cfg });
-        const node = new ClassicPreset.Node(cfg.label);
+        const node = new ClassicPreset.Node(cfg.id);
 
         // Add parent node inputs with multiple connections enabled
         cfg.inputs.forEach((key) =>
@@ -147,6 +147,7 @@ export async function createEditor(container, contextProps) {
         // Set the position property explicitly
         node.position = { x: cfg.x, y: cfg.y };
         node.slug = cfg.slug; // Add slug to the node data
+        node.id = cfg.id; // Ensure the node ID is set correctly
 
         await editor.addNode(node);
         await area.translate(node.id, { x: cfg.x, y: cfg.y });
@@ -155,14 +156,17 @@ export async function createEditor(container, contextProps) {
 
     // Loop over the initial nodeConfigs and create nodes
     const created = {};
-    for (let cfg of nodeList) {
+    for (let cfg of nodeList?.data) {
         created[cfg.id] = await makeNode(cfg);
     }
 
     // Dynamically add node function triggered by App.js
     const addNode = (newNode) => {
         // nodeConfigs.push(newNode); // Add to the array
-        setNodeList((prev) => [...prev, newNode]); // Update the context state
+        setNodeList((prev) => {
+            const updatedList = [...prev.data, newNode]; // Create a new array with the new node
+            return { ...prev, data: updatedList }; // Update the context state
+        }); // Update the context state
         makeNode(newNode); // Create and render the node
     };
 

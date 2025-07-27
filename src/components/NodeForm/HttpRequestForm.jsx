@@ -4,7 +4,7 @@ import React from "react";
 import { BsHourglassSplit } from "react-icons/bs";
 import { CiGlobe } from "react-icons/ci";
 
-const HttpRequestForm = ({ data }) => {
+const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
     const [form] = Form.useForm();
     const [switchData, setSwitchData] = React.useState({
         isQuery: false,
@@ -14,6 +14,31 @@ const HttpRequestForm = ({ data }) => {
     console.log(data);
 
     const onFinish = (values) => {
+        console.log(data.id, "data.id in onFinish");
+        console.log(nodeList, "nodeList in onFinish");
+        const updatedNodeList = nodeList?.data?.map((node) => {
+            if (node.id === data.id) {
+                return {
+                    ...node,
+                    formData: {
+                        method: values.method,
+                        url: values.url,
+                        queryData: values.queryData,
+
+                        headerData: values.headerData,
+
+                        bodyData: values.bodyData,
+                    },
+                };
+            }
+            return node;
+        });
+        console.log("Updated Node List:", updatedNodeList);
+        setNodeList((prev) => ({
+            ...prev,
+            data: updatedNodeList,
+        }));
+        handleSubmit(updatedNodeList);
         console.log(values);
     };
 
@@ -41,7 +66,7 @@ const HttpRequestForm = ({ data }) => {
                 >
                     <Form.Item
                         label={<p className="text-sm text-gray-200">Method</p>}
-                        name="username"
+                        name="method"
                         rules={[
                             {
                                 required: true,

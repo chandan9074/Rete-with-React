@@ -3,18 +3,25 @@ import React, { useEffect } from "react";
 import HttpRequestForm from "./NodeForm/HttpRequestForm";
 import ScheduleTriggerForm from "./NodeForm/ScheduleTriggerForm";
 import { useCommon } from "../context/CommonContextProvider";
+import EditFieldsForm from "./NodeForm/EditFieldsForm";
 
 const FormDrawer = ({
     openFormDrawer,
     handleFormDrawerClose,
     selectedNode,
+    setNodeList,
+    nodeList,
+    handleSubmit,
 }) => {
     // const { openFormDrawer } = useCommon();
+
+    console.log(nodeList, "nodeList in FormDrawer");
 
     // Map slug values to corresponding components
     const componentMap = {
         httpRequest: HttpRequestForm,
         onASchedule: ScheduleTriggerForm,
+        editFields: EditFieldsForm,
     };
 
     useEffect(() => {
@@ -54,13 +61,20 @@ const FormDrawer = ({
             }}
         >
             <Drawer
-                width="520"
+                width={`${
+                    selectedNode?.slug === "editFields" ? "90%" : "420px"
+                }`}
                 closable={false}
                 onClose={handleFormDrawerClose}
                 open={openFormDrawer}
             >
                 <div className="w-full h-screen overflow-auto bg-[#414244]">
-                    <SelectedComponent data={selectedNode} />
+                    <SelectedComponent
+                        data={selectedNode}
+                        setNodeList={setNodeList}
+                        nodeList={nodeList}
+                        handleSubmit={handleSubmit}
+                    />
                 </div>
             </Drawer>
         </ConfigProvider>

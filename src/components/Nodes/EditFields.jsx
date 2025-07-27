@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import { BsThreeDots } from "react-icons/bs";
 import { CiGlobe } from "react-icons/ci";
-import { FaClock, FaMousePointer } from "react-icons/fa";
-import { MdEdit } from "react-icons/md";
+import { FaClock, FaMousePointer, FaPlay } from "react-icons/fa";
+import { IoIosSettings } from "react-icons/io";
+import { MdDelete, MdEdit } from "react-icons/md";
 import { Presets } from "rete-react-plugin";
 
 const { RefSocket, RefControl } = Presets.classic;
@@ -16,7 +18,16 @@ function sortByIndex(entries) {
 }
 
 export function EditFields(props) {
-    const { data, styles: stylesFn, emit, deleteNode, duplicateNode } = props;
+    const {
+        data,
+        styles: stylesFn,
+        emit,
+        deleteNode,
+        duplicateNode,
+        openFormDrawer,
+        setOpenFormDrawer,
+        setSelectedNode,
+    } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);
     const controls = Object.entries(data.controls);
@@ -96,8 +107,15 @@ export function EditFields(props) {
         };
     }, []);
 
+    const handleNodeDoubleClick = (event) => {
+        event.stopPropagation(); // Prevent the context menu from appearing
+        setOpenFormDrawer(true); // Open the form drawer
+        setSelectedNode(data); // Set the selected node in context
+        // Here you can handle the double-click event, like opening a form drawer
+    };
+
     return (
-        <div>
+        <div className="group">
             <div
                 ref={nodeRef} // Attach the ref to the node element
                 data-testid="node"
@@ -169,7 +187,7 @@ export function EditFields(props) {
                     </div>
                 )}
             </div>
-            {menuVisible && (
+            {/* {menuVisible && (
                 <div
                     ref={menuRef}
                     className="absolute bg-gray-700 text-white rounded shadow-md p-2"
@@ -201,7 +219,29 @@ export function EditFields(props) {
                         Copy
                     </div>
                 </div>
-            )}
+            )} */}
+            <div className="absolute -top-10 w-full p-3  group-hover:flex hidden items-center justify-center gap-2.5">
+                <button className="cursor-pointer">
+                    <FaPlay className="text-sm text-gray-500" />
+                </button>
+                <button
+                    className="cursor-pointer"
+                    onClick={(e) => handleMenuOptionClick(e, "Delete")}
+                    onPointerDown={(e) => e.stopPropagation()}
+                >
+                    <MdDelete className="text-lg text-gray-500" />
+                </button>
+                <button
+                    className="cursor-pointer"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={handleNodeDoubleClick}
+                >
+                    <IoIosSettings className="text-lg text-gray-500" />
+                </button>
+                <button className="cursor-pointer">
+                    <BsThreeDots className="text-lg text-gray-500" />
+                </button>
+            </div>
         </div>
     );
 }

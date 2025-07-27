@@ -116,6 +116,7 @@ export function HttpRequest(props) {
         event.stopPropagation(); // Prevent the context menu from appearing
         console.log({ setOpenFormDrawer, openFormDrawer });
         setOpenFormDrawer(true); // Open the form drawer
+        console.log(data, "data in HttpRequest.jsx");
         setSelectedNode(data); // Set the selected node in context
         // Here you can handle the double-click event, like opening a form drawer
     };
@@ -239,7 +240,7 @@ export function HttpRequest(props) {
                 <button
                     className="cursor-pointer"
                     onClick={(e) => handleMenuOptionClick(e, "Delete")}
-                    // onPointerDown={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
                 >
                     <MdDelete className="text-lg text-gray-500" />
                 </button>

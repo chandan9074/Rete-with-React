@@ -48,17 +48,18 @@ export default function App() {
         useCommon(); // Destructure the context to use common state if needed
     const editorContainerRef = useRef(null); // Reference to the editor container
     const editorInitialized = useRef(false); // To ensure the editor initializes only once
-    const [nodeList, setNodeList] = useState([
-        {
-            label: "Parent Node A",
-            id: "node1",
-            x: 0,
-            y: 0,
-            inputs: ["a"],
-            outputs: ["a"],
-            slug: "triggerManually",
-        },
-    ]); // State to manage the list of nodes
+    const [nodeList, setNodeList] = useState({
+        data: [
+            {
+                id: `node${Date.now()}`, // Unique ID
+                x: 0,
+                y: 0,
+                inputs: ["a"],
+                outputs: ["a"],
+                slug: "triggerManually",
+            },
+        ],
+    }); // State to manage the list of nodes
 
     useEffect(() => {
         if (!editorInitialized.current) {
@@ -88,11 +89,10 @@ export default function App() {
     // Handle drag-and-drop to add a new node
     const handleAddNode = (item) => {
         // event.preventDefault();
-        setSelectedNode(item); // Set the selected node from the item
+        // setSelectedNode(item); // Set the selected node from the item
         // setOpen(false); // Close the side drawer
         setOpenFormDrawer(true); // Open the form drawer
         const newNode = {
-            label: "New Node",
             id: `node${Date.now()}`, // Unique ID
             x: Math.random() * 500, // Random position
             y: Math.random() * 500, // Random position
@@ -107,25 +107,25 @@ export default function App() {
             const { addNode } = editorContainerRef.current.editor;
             console.log({ addNode });
             addNode(newNode);
-
+            setSelectedNode(newNode);
             // editor.addNode(newNode); // Add the new node directly to the editor
         }
     };
 
     // Handle submit button click to log nodes and connections
-    const handleSubmit = (item) => {
+    const handleSubmit = (list) => {
         if (editorContainerRef.current) {
             const editor = editorContainerRef.current.editor;
-            const nodes = editor.getNodes().map((node) => {
-                console.log("Node Data:", node);
-                return {
-                    id: node.id,
-                    label: node.label,
-                    position: { x: node.position.x, y: node.position.y },
-                    inputs: Object.keys(node.inputs),
-                    outputs: Object.keys(node.outputs),
-                };
-            });
+            // const nodes = editor.getNodes().map((node) => {
+            //     console.log("Node Data:", node);
+            //     return {
+            //         id: node.id,
+            //         label: node.label,
+            //         position: { x: node.position.x, y: node.position.y },
+            //         inputs: Object.keys(node.inputs),
+            //         outputs: Object.keys(node.outputs),
+            //     };
+            // });
 
             const connections = editor.getConnections().map((connection) => ({
                 source: connection.source,
@@ -135,7 +135,7 @@ export default function App() {
             }));
 
             const data = {
-                nodes,
+                data: list,
                 connections,
             };
 
@@ -146,6 +146,7 @@ export default function App() {
     const handleFormDrawerClose = () => {
         setOpenFormDrawer(false);
         setSelectedNode(null);
+        console.log(nodeList, "nodeList in App.jsx");
     };
 
     useEffect(() => {
@@ -172,7 +173,9 @@ export default function App() {
                 openFormDrawer={openFormDrawer}
                 handleFormDrawerClose={handleFormDrawerClose}
                 selectedNode={selectedNode}
-                setNodeList
+                setNodeList={setNodeList}
+                nodeList={nodeList}
+                handleSubmit={handleSubmit}
             />
             <div
                 ref={editorContainerRef}
