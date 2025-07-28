@@ -1,9 +1,9 @@
 import { Editor } from "@monaco-editor/react";
-import { Form, Input, Select, Switch } from "antd";
+import { Button, Form, Input, Select, Switch } from "antd";
 import React, { use } from "react";
 import { BsHourglassSplit } from "react-icons/bs";
 import { CiGlobe } from "react-icons/ci";
-import { MdEdit } from "react-icons/md";
+import { MdDelete, MdEdit } from "react-icons/md";
 
 const EditFieldsForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
     const [form] = Form.useForm();
@@ -17,30 +17,24 @@ const EditFieldsForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
     const onFinish = (values) => {
         console.log(data.id, "data.id in onFinish");
         console.log(nodeList, "nodeList in onFinish");
+        console.log(values);
         const updatedNodeList = nodeList?.data?.map((node) => {
             if (node.id === data.id) {
                 return {
                     ...node,
                     formData: {
-                        method: values.method,
-                        url: values.url,
-                        queryData: values.queryData,
-
-                        headerData: values.headerData,
-
-                        bodyData: values.bodyData,
+                        editFields: values.editFields,
                     },
                 };
             }
             return node;
         });
-        console.log("Updated Node List:", updatedNodeList);
+        // console.log("Updated Node List:", updatedNodeList);
         setNodeList((prev) => ({
             ...prev,
             data: updatedNodeList,
         }));
         handleSubmit(updatedNodeList);
-        console.log(values);
     };
 
     return (
@@ -50,6 +44,9 @@ const EditFieldsForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                     INPUT
                 </p>
                 <Editor
+                    options={{
+                        readOnly: true,
+                    }}
                     height="85vh"
                     defaultLanguage="json"
                     defaultValue={JSON.stringify(defaultJson, null, 2)}
@@ -64,7 +61,7 @@ const EditFieldsForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                     // }
                 />
             </div>
-            <div className="pb-6 border border-gray-400 h-screen">
+            <div className="pb-6  h-screen overflow-auto">
                 <div className="p-6 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <MdEdit className="text-2xl text-[#8F87F7]" />
@@ -86,7 +83,142 @@ const EditFieldsForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                         name="basic"
                         layout="vertical"
                         onFinish={onFinish}
-                    ></Form>
+                    >
+                        <Form.List name="editFields">
+                            {(fields, { add, remove }) => (
+                                <>
+                                    {fields.map((_a) => {
+                                        let { key, name } = _a;
+                                        return (
+                                            <div className="relative shadow-[0_10px_15px_rgba(0,0,0,0.25)] p-4 mb-6 group">
+                                                <Form.Item
+                                                    label={
+                                                        <p className="text-gray-200 text-sm">
+                                                            Name
+                                                        </p>
+                                                    }
+                                                    name={[name, "name"]}
+                                                    rules={[
+                                                        {
+                                                            required: true,
+                                                            message:
+                                                                "Missing name",
+                                                        },
+                                                    ]}
+                                                >
+                                                    <Input
+                                                        style={{
+                                                            backgroundColor:
+                                                                "#2D2E2E",
+                                                            border: "1px solid #5b5c5c",
+                                                            color: "#f4f4f4",
+                                                        }}
+                                                        className="bg-[#f4f4f4]"
+                                                        placeholder="Name"
+                                                    />
+                                                </Form.Item>
+                                                <Form.Item
+                                                    label={
+                                                        <p className="text-gray-200 text-sm">
+                                                            Type
+                                                        </p>
+                                                    }
+                                                    name={[name, "type"]}
+                                                    rules={[
+                                                        {
+                                                            required: true,
+                                                            message:
+                                                                "Missing type",
+                                                        },
+                                                    ]}
+                                                >
+                                                    <Select
+                                                        dropdownStyle={{
+                                                            backgroundColor:
+                                                                "#2D2E2E",
+                                                        }}
+                                                        options={[
+                                                            {
+                                                                value: "String",
+                                                                label: "String",
+                                                            },
+                                                            {
+                                                                value: "Number",
+                                                                label: "Number",
+                                                            },
+                                                            {
+                                                                value: "Boolean",
+                                                                label: "Boolean",
+                                                            },
+                                                            {
+                                                                value: "Array",
+                                                                label: "Array",
+                                                            },
+                                                            {
+                                                                value: "Object",
+                                                                label: "Object",
+                                                            },
+                                                        ]}
+                                                        style={{
+                                                            background:
+                                                                "#2D2E2E",
+                                                            border: "1px solid #5b5c5c",
+                                                            color: "#f4f4f4",
+                                                        }}
+                                                        rootClassName="bg-black"
+                                                        placeholder="Select Type"
+                                                    />
+                                                </Form.Item>
+                                                <Form.Item
+                                                    label={
+                                                        <p className="text-gray-200 text-sm">
+                                                            Value
+                                                        </p>
+                                                    }
+                                                    name={[name, "value"]}
+                                                    rules={[
+                                                        {
+                                                            required: true,
+                                                            message:
+                                                                "Missing value",
+                                                        },
+                                                    ]}
+                                                >
+                                                    <Input
+                                                        style={{
+                                                            backgroundColor:
+                                                                "#2D2E2E",
+                                                            border: "1px solid #5b5c5c",
+                                                            color: "#f4f4f4",
+                                                        }}
+                                                        className="bg-[#f4f4f4]"
+                                                        placeholder="Value"
+                                                    />
+                                                </Form.Item>
+                                                <button
+                                                    onClick={() => remove(name)}
+                                                    type="button"
+                                                    className="absolute top-1.5 right-1.5 p-1 cursor-pointer group-hover:block hidden"
+                                                >
+                                                    <MdDelete className="text-xl text-red-500" />
+                                                </button>
+                                                {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
+                                            </div>
+                                        );
+                                    })}
+                                    <Form.Item>
+                                        <button
+                                            onClick={() => add()}
+                                            type="button"
+                                            className="w-full bg-neutral-500 mt-3 py-2 rounded-md"
+                                        >
+                                            Add field
+                                        </button>
+                                    </Form.Item>
+                                </>
+                            )}
+                        </Form.List>
+                    </Form>
                 </div>
             </div>
             <div className="">
@@ -94,6 +226,9 @@ const EditFieldsForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                     OUTPUT
                 </p>
                 <Editor
+                    options={{
+                        readOnly: true,
+                    }}
                     height="85vh"
                     defaultLanguage="json"
                     defaultValue={JSON.stringify(defaultJson, null, 2)}

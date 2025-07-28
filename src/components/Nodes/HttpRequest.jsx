@@ -162,10 +162,7 @@ export function HttpRequest(props) {
                             <RefSocket
                                 side="output"
                                 emit={emit}
-                                socketonClick={(e) =>
-                                    handleMenuOptionClick(e, "Delete")
-                                }
-                                // onPointerDown={(e) => e.stopPropagation()}Key={key}
+                                socketKey={key}
                                 nodeId={id}
                                 payload={output.socket}
                                 style={{ cursor: "pointer" }}
