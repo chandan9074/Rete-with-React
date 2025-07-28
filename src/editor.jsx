@@ -16,6 +16,10 @@ import {
     Presets as HistoryPresets,
 } from "rete-history-plugin";
 import NodeWrapper from "./NodeWrapper";
+import {
+    useMagneticConnection,
+    MagneticConnection,
+} from "./magnetic-connection";
 
 export async function createEditor(container, contextProps) {
     const socket = new ClassicPreset.Socket("socket");
@@ -181,6 +185,11 @@ export async function createEditor(container, contextProps) {
             let sourceSocket = sourceNode.outputs[sourceOutput]?.socket;
             let targetSocket = targetNode.inputs[targetInput]?.socket;
 
+            console.log(
+                sourceSocket,
+                targetSocket,
+                "sourceSocket and targetSocket"
+            );
             // Check subnode sockets if applicable
             if (!sourceSocket) {
                 sourceSocket = sourceNode.data.subnodes?.find(
@@ -199,6 +208,38 @@ export async function createEditor(container, contextProps) {
             }
         }
         return context;
+    });
+
+    // Magnetic connection setup
+    useMagneticConnection(connection, {
+        async createConnection(from, to) {
+            if (from.side === to.side) return;
+            const [source, target] =
+                from.side === "output" ? [from, to] : [to, from];
+            const sourceNode = editor.getNode(source.nodeId);
+            const targetNode = editor.getNode(target.nodeId);
+
+            await editor.addConnection(
+                new ClassicPreset.Connection(
+                    sourceNode,
+                    source.key,
+                    targetNode,
+                    target.key
+                )
+            );
+        },
+        display(from, to) {
+            return from.side !== to.side;
+        },
+        offset(socket, position) {
+            const socketRadius = 10;
+            return {
+                x:
+                    position.x +
+                    (socket.side === "input" ? -socketRadius : socketRadius),
+                y: position.y,
+            };
+        },
     });
 
     const deleteNode = async (nodeId) => {
