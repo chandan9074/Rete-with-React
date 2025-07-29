@@ -173,10 +173,11 @@ export function ScheduleTrigger(props) {
                 <p className="text-gray-200 pt-2  font-semibold text-sm absolute -left-1 -bottom-7 w-28 text-center select-none">
                     Schedule Trigger
                 </p>
-                <div className="absolute h-full top-0 flex items-center right-24 px-7">
+                <div className="absolute h-full top-0 flex items-center justify-end right-24 px-7 w-60">
                     <AiFillThunderbolt className="text-[#FF6F5C] text-2xl group-hover:hidden block" />
                     <button
                         // onClick={() => form.submit()}
+                        onPointerDown={(e) => e.stopPropagation()}
                         className="bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md items-center gap-2 group-hover:flex hidden cursor-pointer"
                     >
                         <BsHourglassSplit className="text-gray-200" />
@@ -237,7 +238,10 @@ export function ScheduleTrigger(props) {
                 >
                     <IoIosSettings className="text-lg text-gray-500" />
                 </button>
-                <button className="cursor-pointer">
+                <button
+                    className="cursor-pointer"
+                    onPointerDown={(e) => e.stopPropagation()}
+                >
                     <BsThreeDots className="text-lg text-gray-500" />
                 </button>
             </div>
