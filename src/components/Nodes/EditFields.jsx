@@ -186,6 +186,9 @@ export function EditFields(props) {
                         )}
                     </div>
                 )}
+                <p className="text-gray-200 font-semibold text-sm absolute -left-0 -bottom-7 w-full text-center select-none">
+                    Edit Fields
+                </p>
             </div>
             {/* {menuVisible && (
                 <div

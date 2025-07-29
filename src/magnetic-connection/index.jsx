@@ -29,6 +29,8 @@ export function useMagneticConnection(connection, props) {
         if (context.type === "connectionpick") {
             picked = context.data.socket;
         } else if (context.type === "connectiondrop") {
+            // console.log("Magnetic connection drop", context, nearestSocket);
+
             if (nearestSocket && !context.data.created) {
                 await props.createConnection(
                     context.data.initial,
@@ -48,13 +50,22 @@ export function useMagneticConnection(connection, props) {
                 id,
                 ...getNodeRect(editor.getNode(id), view),
             }));
-            const nearestRects = rects.filter((rect) =>
-                isInsideRect(rect, point, margin)
-            );
+            const nearestRects = rects.filter((rect) => {
+                console.log(
+                    isInsideRect(rect, point, margin),
+                    rect,
+                    point,
+                    margin,
+                    "isInsideRect"
+                );
+                return isInsideRect(rect, point, margin);
+            });
             const nearestNodes = nearestRects.map(({ id }) => id);
+            // console.log(socketsList, nearestRects, "socketsList");
             const nearestSockets = socketsList.filter((item) =>
                 nearestNodes.includes(item.nodeId)
             );
+            // console.log("nearestSockets", nearestSockets, point, margin);
             const socketsPositions = await Promise.all(
                 nearestSockets.map(async (socket) => {
                     const nodeView = area.nodeViews.get(socket.nodeId);
@@ -73,6 +84,8 @@ export function useMagneticConnection(connection, props) {
                     };
                 })
             );
+            // console.log("socketsPositions", socketsPositions, point, distance);
+            // console.log(findNearestPoint(socketsPositions, point, distance));
             nearestSocket =
                 findNearestPoint(socketsPositions, point, distance) || null;
 
@@ -89,6 +102,8 @@ export function useMagneticConnection(connection, props) {
             } else if (magneticConnection.isMounted()) {
                 magneticConnection.unmount(area);
             }
+
+            // console.log("Magnetic connection drop", context, nearestSocket);
         } else if (
             context.type === "render" &&
             context.data.type === "socket"

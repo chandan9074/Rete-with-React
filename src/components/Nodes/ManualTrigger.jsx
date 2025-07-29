@@ -153,6 +153,9 @@ export function ManualTrigger(props) {
                         )}
                     </div>
                 )}
+                <p className="text-gray-200 font-semibold text-sm absolute -left-9 -bottom-12 w-44 text-center select-none">
+                    When clicking 'Execute workflow'
+                </p>
             </div>
             <div className="absolute -top-10 w-full p-3  group-hover:flex hidden items-center justify-center gap-2.5">
                 <button className="cursor-pointer">

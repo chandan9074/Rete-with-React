@@ -169,6 +169,9 @@ export function ScheduleTrigger(props) {
                         )}
                     </div>
                 )}
+                <p className="text-gray-200 font-semibold text-sm absolute -left-1 -bottom-7 w-28 text-center select-none">
+                    Schedule Trigger
+                </p>
             </div>
             {/* {menuVisible && (
                 <div

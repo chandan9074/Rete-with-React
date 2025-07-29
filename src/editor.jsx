@@ -73,7 +73,8 @@ export async function createEditor(container, contextProps) {
                 socket() {
                     return CustomSocket;
                 },
-                connection() {
+                connection(data) {
+                    if (data.payload.isMagnetic) return MagneticConnection;
                     return CustomConnection;
                 },
             },

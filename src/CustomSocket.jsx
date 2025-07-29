@@ -3,7 +3,6 @@ import React from "react";
 
 export function CustomSocket({ data }) {
     const size = 16;
-    console.log({ data });
 
     return (
         <div
