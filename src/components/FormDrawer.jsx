@@ -4,6 +4,7 @@ import HttpRequestForm from "./NodeForm/HttpRequestForm";
 import ScheduleTriggerForm from "./NodeForm/ScheduleTriggerForm";
 import { useCommon } from "../context/CommonContextProvider";
 import EditFieldsForm from "./NodeForm/EditFieldsForm";
+import SendAMessageForm from "./NodeForm/SendAMessageForm";
 
 const FormDrawer = ({
     openFormDrawer,
@@ -22,6 +23,7 @@ const FormDrawer = ({
         httpRequest: HttpRequestForm,
         onASchedule: ScheduleTriggerForm,
         editFields: EditFieldsForm,
+        sendAMessage: SendAMessageForm,
     };
 
     useEffect(() => {
@@ -62,7 +64,9 @@ const FormDrawer = ({
         >
             <Drawer
                 width={`${
-                    selectedNode?.slug === "editFields" ? "90%" : "420px"
+                    selectedNode?.slug === "editFields" || "sendAMessage"
+                        ? "90%"
+                        : "420px"
                 }`}
                 closable={false}
                 onClose={handleFormDrawerClose}

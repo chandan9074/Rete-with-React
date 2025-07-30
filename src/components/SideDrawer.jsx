@@ -1,11 +1,12 @@
 import React from "react";
 import { CiGlobe } from "react-icons/ci";
 import { FaClock, FaFileExport, FaMousePointer, FaRobot } from "react-icons/fa";
-import { SiGooglesheets } from "react-icons/si";
+import { SiGmail, SiGooglesheets } from "react-icons/si";
 import { Button, Drawer } from "antd";
 import { TiArrowRight } from "react-icons/ti";
 import { MdEdit, MdOutlineWebhook } from "react-icons/md";
 import { BiCodeCurly } from "react-icons/bi";
+import Icons from "../assets";
 
 const SideDrawer = ({ open, setOpen, handleSubmit }) => {
     const [childrenDrawer, setChildrenDrawer] = React.useState(false);
@@ -153,6 +154,13 @@ const data = [
                 slug: "googleSheetNode",
                 description: "Read and write data to Google Sheets",
                 icon: <SiGooglesheets className="text-xl text-gray-300" />,
+            },
+            {
+                id: "3.1",
+                label: "Send a Message",
+                slug: "sendAMessage",
+                description: "Send a message to a channel",
+                icon: <SiGmail className="text-xl text-gray-300" />,
             },
         ],
     },

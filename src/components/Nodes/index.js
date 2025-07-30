@@ -8,6 +8,7 @@ import { ExtractFromFile } from "./ExtractFromFile";
 import { AiAgent } from "./AiAgent";
 import { GoogleSheet } from "./GoogleSheet";
 import { Aggregate } from "./Aggregate";
+import { SendAMessage } from "./SendAMessage";
 
 const Nodes = {
     ManualTrigger,
@@ -20,6 +21,7 @@ const Nodes = {
     AiAgent,
     GoogleSheet,
     Aggregate,
+    SendAMessage,
 };
 
 export default Nodes;

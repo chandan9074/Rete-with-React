@@ -18,6 +18,7 @@ const NodeWrapper = (props) => {
         webhook: Nodes.Webhook,
         editFields: Nodes.EditFields,
         extractFromFile: Nodes.ExtractFromFile,
+        sendAMessage: Nodes.SendAMessage,
         // Add more mappings as needed
     };
 
