@@ -4,7 +4,13 @@ import React from "react";
 import { BsHourglassSplit } from "react-icons/bs";
 import { CiGlobe } from "react-icons/ci";
 
-const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
+const HttpRequestForm = ({
+    data,
+    setNodeList,
+    nodeList,
+    handleSubmit,
+    handleFormDrawerClose,
+}) => {
     const [form] = Form.useForm();
     const [switchData, setSwitchData] = React.useState({
         isQuery: false,
@@ -23,11 +29,11 @@ const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                     formData: {
                         method: values.method,
                         url: values.url,
-                        queryData: values.queryData,
+                        query: values.query,
 
-                        headerData: values.headerData,
+                        headers: values.headers,
 
-                        bodyData: values.bodyData,
+                        body: values.body,
                     },
                 };
             }
@@ -39,6 +45,7 @@ const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
             data: updatedNodeList,
         }));
         handleSubmit(updatedNodeList);
+        handleFormDrawerClose();
         console.log(values);
     };
 
@@ -144,7 +151,7 @@ const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                                             "Please input Query Parameters!",
                                     },
                                 ]}
-                                name="queryData"
+                                name="query"
                             >
                                 <Editor
                                     height="150px"
@@ -152,7 +159,7 @@ const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                                     theme="vs-dark"
                                     onChange={(value) =>
                                         form.setFieldsValue({
-                                            queryData: value,
+                                            query: value,
                                         })
                                     }
                                 />
@@ -187,7 +194,7 @@ const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                                         message: "Please input headers!",
                                     },
                                 ]}
-                                name="headerData"
+                                name="headers"
                             >
                                 <Editor
                                     height="150px"
@@ -195,7 +202,7 @@ const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                                     theme="vs-dark"
                                     onChange={(value) =>
                                         form.setFieldsValue({
-                                            headerData: value,
+                                            headers: value,
                                         })
                                     }
                                 />
@@ -228,7 +235,7 @@ const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                                         message: "Please input body!",
                                     },
                                 ]}
-                                name="bodyData"
+                                name="body"
                             >
                                 <Editor
                                     height="150px"
@@ -236,7 +243,7 @@ const HttpRequestForm = ({ data, setNodeList, nodeList, handleSubmit }) => {
                                     theme="vs-dark"
                                     onChange={(value) =>
                                         form.setFieldsValue({
-                                            bodyData: value,
+                                            body: value,
                                         })
                                     }
                                 />

@@ -17,7 +17,15 @@ function sortByIndex(entries) {
 }
 
 export function ManualTrigger(props) {
-    const { data, styles: stylesFn, emit, deleteNode, duplicateNode } = props;
+    const {
+        data,
+        styles: stylesFn,
+        emit,
+        deleteNode,
+        duplicateNode,
+        handleExecution,
+        nodeList,
+    } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);
     const controls = Object.entries(data.controls);
@@ -97,6 +105,10 @@ export function ManualTrigger(props) {
         };
     }, []);
 
+    useEffect(() => {
+        console.log(nodeList, "nodeList in ManualTrigger");
+    }, [nodeList]);
+
     return (
         <div className="group">
             <div
@@ -157,10 +169,11 @@ export function ManualTrigger(props) {
                 <p className="text-gray-200 pt-2 font-semibold text-sm absolute -left-9 -bottom-12 w-44 text-center select-none">
                     When clicking 'Execute workflow'
                 </p>
-                <div className="absolute h-full top-0 flex items-center justify-end right-24 px-7 w-60">
+                {/* <div className="absolute h-full top-0 flex items-center justify-end right-24 px-7 w-60">
                     <AiFillThunderbolt className="text-[#FF6F5C] text-2xl group-hover:hidden block" />
                     <button
-                        // onClick={() => form.submit()}
+                        onClick={() => console.log({ nodeList })}
+                        // onClick={() => handleExecution(nodeList)}
                         onPointerDown={(e) => e.stopPropagation()}
                         className="bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md items-center gap-2 group-hover:flex hidden cursor-pointer"
                     >
@@ -169,7 +182,7 @@ export function ManualTrigger(props) {
                             Execute Workflow
                         </span>
                     </button>
-                </div>
+                </div> */}
             </div>
             <div className="absolute -top-10 w-full p-3  group-hover:flex hidden items-center justify-center gap-2.5">
                 <button className="cursor-pointer">

@@ -29,6 +29,8 @@ export function HttpRequest(props) {
         setOpenFormDrawer,
         selectedNode,
         setSelectedNode,
+        nodeList,
+        handleNodeData,
     } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);
@@ -234,7 +236,11 @@ export function HttpRequest(props) {
                 </div>
             )} */}
             <div className="absolute -top-10 w-full p-3  group-hover:flex hidden items-center justify-center gap-2.5">
-                <button className="cursor-pointer">
+                <button
+                    onClick={handleNodeData}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className="cursor-pointer"
+                >
                     <FaPlay className="text-sm text-gray-500" />
                 </button>
                 <button

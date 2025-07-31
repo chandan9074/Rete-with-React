@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import providers from "./helpers/ProviderInjections.js";
 import App from "./App.jsx";
+import { BrowserRouter as Router } from "react-router-dom";
 
 const getAppWithContextProviders = () => {
     let result = <App />;
@@ -12,5 +13,7 @@ const getAppWithContextProviders = () => {
 };
 
 createRoot(document.getElementById("root")).render(
-    <StrictMode>{getAppWithContextProviders()}</StrictMode>
+    <StrictMode>
+        <Router>{getAppWithContextProviders()}</Router>
+    </StrictMode>
 );

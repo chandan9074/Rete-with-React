@@ -67,6 +67,7 @@ export async function createEditor(container, contextProps) {
                             {...contextProps}
                             deleteNode={deleteNode}
                             duplicateNode={duplicateNode}
+                            handleNodeData={handleNodeData}
                         />
                     );
                 },
@@ -298,6 +299,10 @@ export async function createEditor(container, contextProps) {
         // Create the new node
         await makeNode(newNodeConfig);
         console.log(`Node duplicated successfully: ${newNodeConfig.id}`);
+    };
+
+    const handleNodeData = () => {
+        console.log(nodeList, "nodeList in createEditor");
     };
 
     // Zoom to fit

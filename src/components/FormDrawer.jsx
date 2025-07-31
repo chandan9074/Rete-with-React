@@ -64,7 +64,8 @@ const FormDrawer = ({
         >
             <Drawer
                 width={`${
-                    selectedNode?.slug === "editFields" || "sendAMessage"
+                    selectedNode?.slug === "editFields" ||
+                    selectedNode?.slug === "sendAMessage"
                         ? "90%"
                         : "420px"
                 }`}
@@ -78,6 +79,7 @@ const FormDrawer = ({
                         setNodeList={setNodeList}
                         nodeList={nodeList}
                         handleSubmit={handleSubmit}
+                        handleFormDrawerClose={handleFormDrawerClose}
                     />
                 </div>
             </Drawer>

@@ -51,13 +51,6 @@ export function useMagneticConnection(connection, props) {
                 ...getNodeRect(editor.getNode(id), view),
             }));
             const nearestRects = rects.filter((rect) => {
-                console.log(
-                    isInsideRect(rect, point, margin),
-                    rect,
-                    point,
-                    margin,
-                    "isInsideRect"
-                );
                 return isInsideRect(rect, point, margin);
             });
             const nearestNodes = nearestRects.map(({ id }) => id);
