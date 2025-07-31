@@ -63,20 +63,14 @@ export default function App() {
             },
         ],
     }); // State to manage the list of nodes
-    const [copyNode, setCopyNode] = useState([]); // State to manage the copied node
     const navigate = useNavigate();
     const location = useLocation();
+    const [workflowData, setWorkflowData] = useState(null); // State to manage workflow data
 
     // Parse query parameters
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get("id"); // Get the 'id' query parameter
     console.log({ id }); // This will now correctly log the 'id' value
-
-    useEffect(() => {
-        if (id) {
-            // const res
-        }
-    }, [id]); // Effect to handle changes in the 'id' query parameter
 
     useEffect(() => {
         if (!editorInitialized.current) {
@@ -181,6 +175,8 @@ export default function App() {
 
             console.log({ res });
             if (res.data && res.data.nodes && res.data.connections) {
+                setWorkflowData(res.data); // Store the workflow data in state
+                // setNodeList({ data: res.data.nodes }); // Update nodeList with the fetched nodes
                 const newNodes = res.data.nodes;
                 const newConnections = res.data.connections;
 
@@ -307,6 +303,56 @@ export default function App() {
         }
     };
 
+    const handleUpdateWorkflow = async () => {
+        if (editorContainerRef.current) {
+            const editor = editorContainerRef.current.editor;
+
+            const connections = editor.getConnections().map((connection) => ({
+                sourceNodeFrontendId: connection.source,
+                sourceOutput: connection.sourceOutput,
+                targetNodeFrontendId: connection.target,
+                targetInput: connection.targetInput,
+            }));
+
+            const data = {
+                // name: "New Workflow",
+                // description: "This is a new workflow",
+                // nodes: nodeList.data.map((node) => ({
+                //     frontendId: node.id,
+                //     slug: node.slug,
+                //     x: node.x,
+                //     y: node.y,
+                //     inputs: node.inputs,
+                //     outputs: node.outputs,
+                //     ...(node.formData && { formData: node.formData }),
+                // })),
+                // connections,
+                ...workflowData, // Use the existing workflow data
+                // nodes: nodeList.data.map((node) => ({
+                //     frontendId: node.id,
+                //     slug: node.slug,
+                //     x: node.x,
+                //     y: node.y,
+                //     inputs: node.inputs,
+                //     outputs: node.outputs,
+                //     ...(node.formData && { formData: node.formData }),
+                // })),
+                connections, // Update connections with the current state
+            };
+
+            console.log({ workflowData, data, nodeList });
+
+            const res = await axios.put(
+                `http://192.168.10.68:7890/api/1.0.0/workflows/update/${id}`,
+                data
+            );
+
+            handleGetNodes(id); // Refresh the nodes after update
+
+            // console.log({ res });
+        }
+    };
+
     return (
         <div className="App">
             {/* <button onClick={handleAddNode}>Add Node</button>{" "} */}
@@ -314,16 +360,28 @@ export default function App() {
             {/* Button to add nodes */}
             <div className="absolute top-5 right-10 flex items-center gap-3">
                 {id && (
-                    <button
-                        onClick={handleExecution}
-                        // onClick={() => handleExecution(nodeList)}
-                        className=" bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md items-center gap-2 flex cursor-pointer"
-                    >
-                        <BsHourglassSplit className="text-gray-200" />
-                        <span className="text-gray-200 text-sm font-semibold whitespace-nowrap">
-                            Execute Workflow
-                        </span>
-                    </button>
+                    <>
+                        <button
+                            onClick={handleExecution}
+                            // onClick={() => handleExecution(nodeList)}
+                            className=" bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md items-center gap-2 flex cursor-pointer"
+                        >
+                            <BsHourglassSplit className="text-gray-200" />
+                            <span className="text-gray-200 text-sm font-semibold whitespace-nowrap">
+                                Execute Workflow
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={handleUpdateWorkflow}
+                            // onClick={() => handleExecution(nodeList)}
+                            className=" bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md items-center gap-2 flex cursor-pointer"
+                        >
+                            <span className="text-gray-200 text-sm font-semibold whitespace-nowrap">
+                                Update
+                            </span>
+                        </button>
+                    </>
                 )}
                 {!id && (
                     <button
