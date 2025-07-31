@@ -153,6 +153,10 @@ export async function createEditor(container, contextProps) {
         // Set the position property explicitly
         node.position = { x: cfg.x, y: cfg.y };
         node.slug = cfg.slug; // Add slug to the node data
+        // console.log({ cfg });
+        if (cfg.status) {
+            node.status = cfg.status; // Add status to the node data
+        }
         node.id = cfg.id; // Ensure the node ID is set correctly
 
         await editor.addNode(node);
@@ -167,13 +171,14 @@ export async function createEditor(container, contextProps) {
     }
 
     // Dynamically add node function triggered by App.js
-    const addNode = (newNode) => {
+    const addNode = async (newNode) => {
         // nodeConfigs.push(newNode); // Add to the array
         setNodeList((prev) => {
             const updatedList = [...prev.data, newNode]; // Create a new array with the new node
             return { ...prev, data: updatedList }; // Update the context state
         }); // Update the context state
-        makeNode(newNode); // Create and render the node
+        const createdNode = await makeNode(newNode); // Wait for the node to be created
+        return createdNode; // Return the created node
     };
 
     // Add connection validation to ensure socket compatibility
@@ -305,6 +310,27 @@ export async function createEditor(container, contextProps) {
         console.log(nodeList, "nodeList in createEditor");
     };
 
+    // Add connection function
+    const addConnection = async (connectionData) => {
+        const { source, sourceOutput, target, targetInput } = connectionData;
+        const sourceNode = editor.getNode(source);
+        const targetNode = editor.getNode(target);
+
+        if (!sourceNode || !targetNode) {
+            console.error("Source or target node not found for connection.");
+            return;
+        }
+
+        await editor.addConnection(
+            new ClassicPreset.Connection(
+                sourceNode,
+                sourceOutput,
+                targetNode,
+                targetInput
+            )
+        );
+    };
+
     // Zoom to fit
     setTimeout(() => {
         AreaExtensions.zoomAt(area, editor.getNodes());
@@ -316,5 +342,6 @@ export async function createEditor(container, contextProps) {
         getNodes: () => editor.getNodes(),
         getConnections: () => editor.getConnections(),
         deleteNode,
+        addConnection,
     };
 }

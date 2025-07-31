@@ -168,18 +168,108 @@ export default function App() {
     };
 
     useEffect(() => {
-        console.log({ nodeList });
-    }, [nodeList]);
-
-    const handleExecution = async () => {
         if (id) {
-            const res = await axios.post(
-                `http://192.168.10.68:7890/api/1.0.0/workflows/execute/${id}`
+            handleGetNodes(id);
+        }
+    }, [id]);
+
+    const handleGetNodes = async (wfId) => {
+        try {
+            const res = await axios.get(
+                `http://192.168.10.68:7890/api/1.0.0/workflows/${wfId}`
             );
-            console.log(res);
+
+            console.log({ res });
+            if (res.data && res.data.nodes && res.data.connections) {
+                const newNodes = res.data.nodes;
+                const newConnections = res.data.connections;
+
+                // Preserve connections before removing nodes
+                const editor = editorContainerRef.current.editor;
+                const existingConnections = editor.getConnections();
+
+                // Remove existing nodes
+                const existingNodes = editor.getNodes();
+                for (const node of existingNodes) {
+                    await editor.deleteNode(node.id);
+                }
+
+                // Add new nodes
+                const nodeMap = {}; // Map to store added nodes for quick lookup
+                for (const newNode of newNodes) {
+                    // Replace newNode.id with newNode.frontendId
+                    newNode.id = newNode.frontendId;
+
+                    const { addNode } = editorContainerRef.current.editor;
+                    const addedNode = await addNode(newNode); // Wait for the node to be added
+                    console.log({ addedNode });
+                    nodeMap[newNode.id] = addedNode; // Store the added node in the map
+                }
+
+                // console.log("New Nodes:", newNodes);
+                // console.log("New Connections:", newConnections);
+                // console.log("Node Map:", nodeMap);
+
+                // Add connections after all nodes are added
+                for (const connection of newConnections) {
+                    const { addConnection } = editorContainerRef.current.editor;
+
+                    // Ensure source and target nodes exist in the editor
+                    const sourceNode = nodeMap[connection.sourceNodeFrontendId];
+                    const targetNode = nodeMap[connection.targetNodeFrontendId];
+
+                    if (sourceNode && targetNode) {
+                        addConnection({
+                            source: connection.sourceNodeFrontendId,
+                            sourceOutput: connection.sourceOutput,
+                            target: connection.targetNodeFrontendId,
+                            targetInput: connection.targetInput,
+                        });
+                    } else {
+                        console.error(
+                            `Source or target node not found for connection: ${connection}`
+                        );
+                    }
+                }
+
+                console.log("Nodes and connections updated successfully.");
+            }
+        } catch (error) {
+            console.error("Error getting workflow:", error);
         }
     };
 
+    const handleExecution = async () => {
+        if (id) {
+            let intervalId = null; // Store the interval ID
+
+            try {
+                handleGetNodes(id);
+                // Start polling handleGetNodes every 5 seconds
+                intervalId = setInterval(() => {
+                    handleGetNodes(id);
+                }, 5000);
+
+                // Execute the workflow
+                const res = await axios.post(
+                    `http://192.168.10.68:7890/api/1.0.0/workflows/execute/${id}`
+                );
+
+                console.log("API Response:", res);
+
+                // Stop polling once the API call is complete
+                clearInterval(intervalId);
+                handleGetNodes(id);
+            } catch (error) {
+                console.error("Error executing workflow:", error);
+
+                // Stop polling in case of an error
+                if (intervalId) {
+                    clearInterval(intervalId);
+                }
+            }
+        }
+    };
     const handleCreate = async () => {
         if (editorContainerRef.current) {
             const editor = editorContainerRef.current.editor;

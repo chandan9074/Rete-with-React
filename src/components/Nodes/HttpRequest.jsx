@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CiGlobe } from "react-icons/ci";
-import { FaClock, FaMousePointer, FaPlay } from "react-icons/fa";
+import { FaCheck, FaClock, FaMousePointer, FaPlay } from "react-icons/fa";
 import { Presets } from "rete-react-plugin";
 import { useCommon } from "../../context/CommonContextProvider";
 import { MdDelete } from "react-icons/md";
 import { BsThreeDots } from "react-icons/bs";
 import { IoIosSettings } from "react-icons/io";
+import { Spin } from "antd";
+import { MoonLoader, RingLoader } from "react-spinners";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -123,13 +125,19 @@ export function HttpRequest(props) {
         // Here you can handle the double-click event, like opening a form drawer
     };
 
+    console.log(data, "data in HttpRequest.jsx");
+
     return (
         <div className="group">
             <div
                 ref={nodeRef} // Attach the ref to the node element
                 data-testid="node"
                 className={
-                    `bg-[#414244] relative  border-2 border-gray-300 rounded-lg p-7 shadow-md` +
+                    `bg-[#414244] relative  border-2 ${
+                        data?.status === "success"
+                            ? "border-green-500"
+                            : "border-gray-300"
+                    } rounded-lg p-7 shadow-md` +
                     (selected ? " border-red-500" : "")
                 }
                 style={extraStyle}
@@ -141,6 +149,18 @@ export function HttpRequest(props) {
                 // onPointerDown={(e) => e.stopPropagation()}
                 >
                     <CiGlobe className="text-5xl text-[#8F87F7]" />
+                </div>
+
+                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                    {data.status === "pending" && (
+                        // <Spin size="large" className="text-red-500" />
+                        <RingLoader size={60} color="#ffffff" />
+                    )}
+                </div>
+                <div className="absolute bottom-2 right-2">
+                    {data?.status === "success" && (
+                        <FaCheck className="text-xl text-green-500" />
+                    )}
                 </div>
 
                 <div className="absolute -left-2.5 top-1/2 transform -translate-y-1/2">

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AiFillThunderbolt } from "react-icons/ai";
 import { BsHourglassSplit, BsThreeDots } from "react-icons/bs";
-import { FaMousePointer, FaPlay } from "react-icons/fa";
+import { FaCheck, FaMousePointer, FaPlay } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { RingLoader } from "react-spinners";
 import { Presets } from "rete-react-plugin";
 
 const { RefSocket, RefControl } = Presets.classic;
@@ -105,9 +106,11 @@ export function ManualTrigger(props) {
         };
     }, []);
 
-    useEffect(() => {
-        console.log(nodeList, "nodeList in ManualTrigger");
-    }, [nodeList]);
+    // useEffect(() => {
+    //     console.log(nodeList, "nodeList in ManualTrigger");
+    // }, [nodeList]);
+
+    console.log(data, "data in ManualTrigger");
 
     return (
         <div className="group">
@@ -115,7 +118,11 @@ export function ManualTrigger(props) {
                 ref={nodeRef} // Attach the ref to the node element
                 data-testid="node"
                 className={
-                    `bg-gray-500 relative  border-2 border-gray-300 rounded-r-lg rounded-l-4xl p-7 shadow-md` +
+                    `bg-gray-500 relative  border-2 ${
+                        data?.status === "success"
+                            ? "border-green-500"
+                            : "border-gray-300"
+                    }  rounded-r-lg rounded-l-4xl p-7 shadow-md` +
                     (selected ? " border-red-500" : "")
                 }
                 style={extraStyle}
@@ -124,6 +131,17 @@ export function ManualTrigger(props) {
                 {/* Sockets Row */}
                 <div>
                     <FaMousePointer className="text-5xl text-gray-300" />
+                </div>
+
+                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                    {data?.status === "pending" && (
+                        <RingLoader size={60} color="#ffffff" />
+                    )}
+                </div>
+                <div className="absolute bottom-2 right-2">
+                    {data?.status === "success" && (
+                        <FaCheck className="text-xl text-green-500" />
+                    )}
                 </div>
                 {/* Outputs */}
                 <div className="absolute -right-2.5 top-1/2 transform -translate-y-1/2">
