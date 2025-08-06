@@ -66,6 +66,7 @@ export default function App() {
     const navigate = useNavigate();
     const location = useLocation();
     const [workflowData, setWorkflowData] = useState(null); // State to manage workflow data
+    const [updateAsJson, setUpdateAdJson] = useState(false);
 
     // Parse query parameters
     const queryParams = new URLSearchParams(location.search);
@@ -86,6 +87,8 @@ export default function App() {
                 setNodeList,
                 nodeList,
                 handleExecution,
+                setUpdateAdJson,
+                updateAsJson
             })
                 .then((editorInstance) => {
                     console.log("Editor initialized successfully");
@@ -349,7 +352,7 @@ export default function App() {
 
             handleGetNodes(id); // Refresh the nodes after update
 
-            // console.log({ res });
+            console.log({ res });
         }
     };
 
@@ -413,6 +416,8 @@ export default function App() {
                 setNodeList={setNodeList}
                 nodeList={nodeList}
                 handleSubmit={handleSubmit}
+                setUpdateAdJson={setUpdateAdJson}
+                updateAsJson={updateAsJson}
             />
             <div
                 ref={editorContainerRef}

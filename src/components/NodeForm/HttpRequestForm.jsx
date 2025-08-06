@@ -17,7 +17,8 @@ const HttpRequestForm = ({
         isHeaders: false,
         isBody: false,
     });
-    console.log(data);
+    // console.log(data);
+    console.log(nodeList, "http form")
 
     const onFinish = (values) => {
         console.log(data.id, "data.id in onFinish");

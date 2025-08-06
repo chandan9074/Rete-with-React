@@ -5,6 +5,7 @@ import ScheduleTriggerForm from "./NodeForm/ScheduleTriggerForm";
 import { useCommon } from "../context/CommonContextProvider";
 import EditFieldsForm from "./NodeForm/EditFieldsForm";
 import SendAMessageForm from "./NodeForm/SendAMessageForm";
+import HttpRequestJSONForm from "./NodeForm/HttpRequestJSONForm";
 
 const FormDrawer = ({
     openFormDrawer,
@@ -13,6 +14,8 @@ const FormDrawer = ({
     setNodeList,
     nodeList,
     handleSubmit,
+    setUpdateAdJson,
+    updateAsJson
 }) => {
     // const { openFormDrawer } = useCommon();
 
@@ -20,7 +23,7 @@ const FormDrawer = ({
 
     // Map slug values to corresponding components
     const componentMap = {
-        httpRequest: HttpRequestForm,
+        httpRequest: updateAsJson ? HttpRequestJSONForm : HttpRequestForm,
         onASchedule: ScheduleTriggerForm,
         editFields: EditFieldsForm,
         sendAMessage: SendAMessageForm,
@@ -63,12 +66,11 @@ const FormDrawer = ({
             }}
         >
             <Drawer
-                width={`${
-                    selectedNode?.slug === "editFields" ||
+                width={`${selectedNode?.slug === "editFields" ||
                     selectedNode?.slug === "sendAMessage"
-                        ? "90%"
-                        : "420px"
-                }`}
+                    ? "90%"
+                    : "420px"
+                    }`}
                 closable={false}
                 onClose={handleFormDrawerClose}
                 open={openFormDrawer}

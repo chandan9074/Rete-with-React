@@ -37,6 +37,8 @@ export function HttpRequest(props) {
         setSelectedNode,
         nodeList,
         handleNodeData,
+        updateAsJson,
+        setUpdateAdJson
     } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);
@@ -168,7 +170,24 @@ export function HttpRequest(props) {
         },
         {
             label: (
-                <button className="w-[200px] text-left flex items-center justify-between">
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => handleMenuOptionClick(e, "Delete")}
+                    className="w-[200px] text-left flex items-center justify-between">
+                    <span>Delete</span>
+                    <MdDelete className="text-base" />
+                </button>
+            ),
+            key: '4',
+        },
+        {
+            label: (
+                <button
+                    onClick={(e) => {
+                        setUpdateAdJson(!updateAsJson);
+                        handleNodeDoubleClick(e);
+                    }}
+                    className="w-[200px] text-left flex items-center justify-between">
                     <span>Update JSON</span>
                     <PiBracketsCurlyBold className="text-base" />
                 </button>
