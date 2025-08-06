@@ -294,11 +294,12 @@ export async function createEditor(container, contextProps) {
             y: originalNode.position.y + 50,
             inputs: Object.keys(originalNode.inputs), // Clone inputs
             outputs: Object.keys(originalNode.outputs), // Clone outputs
-            subnodes: (originalNode.data.subnodes || []).map((sn) => ({
-                ...sn,
-                inputs: Object.keys(sn.inputs || {}), // Convert inputs to an array
-                outputs: Object.keys(sn.outputs || {}), // Convert outputs to an array
-            })),
+            slug: originalNode.slug,
+            // subnodes: (originalNode.data.subnodes || []).map((sn) => ({
+            //     ...sn,
+            //     inputs: Object.keys(sn.inputs || {}), // Convert inputs to an array
+            //     outputs: Object.keys(sn.outputs || {}), // Convert outputs to an array
+            // })),
         };
 
         // Create the new node

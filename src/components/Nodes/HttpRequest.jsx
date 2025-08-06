@@ -3,11 +3,15 @@ import { CiGlobe } from "react-icons/ci";
 import { FaCheck, FaClock, FaMousePointer, FaPlay } from "react-icons/fa";
 import { Presets } from "rete-react-plugin";
 import { useCommon } from "../../context/CommonContextProvider";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdEdit } from "react-icons/md";
 import { BsThreeDots } from "react-icons/bs";
 import { IoIosSettings } from "react-icons/io";
-import { Spin } from "antd";
+import { Dropdown, Spin } from "antd";
 import { MoonLoader, RingLoader } from "react-spinners";
+import ContextMenu from "../ContextMenu";
+import { HiOutlineDocumentDuplicate } from "react-icons/hi";
+import { PiBracketsCurlyBold } from "react-icons/pi";
+import { FcProcess } from "react-icons/fc";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -74,6 +78,8 @@ export function HttpRequest(props) {
     const handleMenuOptionClick = async (event, option) => {
         event.stopPropagation();
 
+        console.log("click")
+
         switch (option) {
             case "Duplicate":
                 // Logic to duplicate the node
@@ -96,16 +102,18 @@ export function HttpRequest(props) {
     };
 
     const handleClickOutside = (event) => {
-        if (
-            menuRef.current &&
-            !menuRef.current.contains(event.target) &&
-            nodeRef.current &&
-            !nodeRef.current.contains(event.target) &&
-            !event.target.closest(".p-2")
-        ) {
-            console.log("Clicked outside the node or menu");
-            setMenuVisible(false); // Close the menu if clicked outside
-        }
+        // if (
+        //     menuRef.current &&
+        //     !menuRef.current.contains(event.target) &&
+        //     nodeRef.current &&
+        //     !nodeRef.current.contains(event.target) &&
+        //     !event.target.closest(".p-2")
+        // ) {
+        //     console.log("Clicked outside the node or menu");
+        //     setMenuVisible(false); // Close the menu if clicked outside
+        // }
+        setMenuVisible(false); // Close the menu if clicked outside
+
     };
 
     useEffect(() => {
@@ -127,16 +135,57 @@ export function HttpRequest(props) {
 
     console.log(data, "data in HttpRequest.jsx");
 
+    const items = [
+        {
+            label: (
+                <button className="w-[200px] text-left flex items-center justify-between">
+                    <span>Execute Step</span>
+                    <FcProcess className="text-base text-white" />
+                </button>
+            ),
+            key: '3',
+        },
+        {
+            label: (
+                <button className="w-[200px] text-left flex items-center justify-between">
+                    <span>Rename</span>
+                    <MdEdit className="text-base" />
+                </button>
+            ),
+            key: '0',
+        },
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => handleMenuOptionClick(e, "Duplicate")}
+                    className="w-[200px] text-left flex items-center justify-between">
+                    <span>Duplicate</span>
+                    <HiOutlineDocumentDuplicate className="text-base" />
+                </button>
+            ),
+            key: '1',
+        },
+        {
+            label: (
+                <button className="w-[200px] text-left flex items-center justify-between">
+                    <span>Update JSON</span>
+                    <PiBracketsCurlyBold className="text-base" />
+                </button>
+            ),
+            key: '2',
+        },
+    ];
+
     return (
         <div className="group">
             <div
                 ref={nodeRef} // Attach the ref to the node element
                 data-testid="node"
                 className={
-                    `bg-[#414244] relative  border-2 ${
-                        data?.status === "success"
-                            ? "border-green-500"
-                            : "border-gray-300"
+                    `bg-[#414244] relative  border-2 ${data?.status === "success"
+                        ? "border-green-500"
+                        : "border-gray-300"
                     } rounded-lg p-7 shadow-md` +
                     (selected ? " border-red-500" : "")
                 }
@@ -203,9 +252,8 @@ export function HttpRequest(props) {
                                         key={key}
                                         className="control block"
                                         style={{
-                                            padding: `${socketMargin}px ${
-                                                socketSize / 2 + socketMargin
-                                            }px`,
+                                            padding: `${socketMargin}px ${socketSize / 2 + socketMargin
+                                                }px`,
                                         }}
                                     >
                                         <RefControl
@@ -255,7 +303,7 @@ export function HttpRequest(props) {
                     </div>
                 </div>
             )} */}
-            <div className="absolute -top-10 w-full p-3  group-hover:flex hidden items-center justify-center gap-2.5">
+            <div className={`absolute -top-10 w-full p-3  group-hover:flex ${menuVisible ? "flex" : "hidden"} items-center justify-center gap-2.5`}>
                 <button
                     onClick={handleNodeData}
                     onPointerDown={(e) => e.stopPropagation()}
@@ -277,9 +325,15 @@ export function HttpRequest(props) {
                 >
                     <IoIosSettings className="text-lg text-gray-500" />
                 </button>
-                <button className="cursor-pointer">
-                    <BsThreeDots className="text-lg text-gray-500" />
-                </button>
+                <Dropdown menu={{ items }} trigger={['click']}>
+                    <button
+                        onClick={() => setMenuVisible(true)}
+                        // onClick={e => e.preventDefault()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        className="cursor-pointer">
+                        <BsThreeDots className="text-lg text-gray-500" />
+                    </button>
+                </Dropdown>
             </div>
         </div>
     );

@@ -1,6 +1,7 @@
 import React from "react";
 import Nodes from "./components/Nodes";
 import CommonContextProvider from "./context/CommonContextProvider";
+import { ConfigProvider } from "antd";
 
 const NodeWrapper = (props) => {
     const { data } = props;
@@ -28,7 +29,26 @@ const NodeWrapper = (props) => {
     console.log({ data });
 
     // Render the selected component
-    return <SelectedComponent {...props} />;
+    return (
+        <ConfigProvider
+            theme={{
+                token: {
+                    colorPrimary: "#2D2E2E",
+                    fontFamily: " 'Poppins', sans-serif",
+                    // colorTextBase: BLUE_TWO,
+                    colorTextBase: "#f4f4f4",
+                    fontSize: 14,
+                },
+                components: {
+                    Dropdown: {
+                        colorBgElevated: "#2b2a25"
+                    }
+                },
+            }}
+        >
+            <SelectedComponent {...props} />
+        </ConfigProvider>
+    );
 };
 
 export default NodeWrapper;
