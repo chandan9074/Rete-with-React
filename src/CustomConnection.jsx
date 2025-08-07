@@ -1,4 +1,5 @@
 import React from "react";
+import { MdDelete } from "react-icons/md";
 import { Presets } from "rete-react-plugin";
 
 const { useConnection } = Presets.classic;
