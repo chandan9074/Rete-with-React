@@ -88,7 +88,7 @@ export default function App() {
                 nodeList,
                 handleExecution,
                 setUpdateAdJson,
-                updateAsJson
+                updateAsJson,
             })
                 .then((editorInstance) => {
                     console.log("Editor initialized successfully");
@@ -173,7 +173,7 @@ export default function App() {
     const handleGetNodes = async (wfId) => {
         try {
             const res = await axios.get(
-                `http://192.168.10.68:7890/api/1.0.0/workflows/${wfId}`
+                `http://192.168.10.13:7890/api/1.0.0/workflows/${wfId}`
             );
 
             console.log({ res });
@@ -192,6 +192,7 @@ export default function App() {
                 for (const node of existingNodes) {
                     await editor.deleteNode(node.id);
                 }
+                setNodeList({ data: [] }); // Clear the nodeList state
 
                 // Add new nodes
                 const nodeMap = {}; // Map to store added nodes for quick lookup
@@ -251,7 +252,7 @@ export default function App() {
 
                 // Execute the workflow
                 const res = await axios.post(
-                    `http://192.168.10.68:7890/api/1.0.0/workflows/execute/${id}`
+                    `http://192.168.10.13:7890/api/1.0.0/workflows/execute/${id}`
                 );
 
                 console.log("API Response:", res);
@@ -295,8 +296,10 @@ export default function App() {
                 connections,
             };
 
+            console.log({ data, nodeList });
+
             const res = await axios.post(
-                "http://192.168.10.68:7890/api/1.0.0/workflows/create",
+                "http://192.168.10.13:7890/api/1.0.0/workflows/create",
                 data
             );
 
@@ -331,22 +334,22 @@ export default function App() {
                 // })),
                 // connections,
                 ...workflowData, // Use the existing workflow data
-                // nodes: nodeList.data.map((node) => ({
-                //     frontendId: node.id,
-                //     slug: node.slug,
-                //     x: node.x,
-                //     y: node.y,
-                //     inputs: node.inputs,
-                //     outputs: node.outputs,
-                //     ...(node.formData && { formData: node.formData }),
-                // })),
+                nodes: nodeList.data.map((node) => ({
+                    frontendId: node.id,
+                    slug: node.slug,
+                    x: node.x,
+                    y: node.y,
+                    inputs: node.inputs,
+                    outputs: node.outputs,
+                    ...(node.formData && { formData: node.formData }),
+                })),
                 connections, // Update connections with the current state
             };
 
             console.log({ workflowData, data, nodeList });
 
             const res = await axios.put(
-                `http://192.168.10.68:7890/api/1.0.0/workflows/update/${id}`,
+                `http://192.168.10.13:7890/api/1.0.0/workflows/update/${id}`,
                 data
             );
 

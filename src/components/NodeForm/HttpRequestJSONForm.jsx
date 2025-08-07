@@ -1,6 +1,6 @@
 import { Editor } from "@monaco-editor/react";
 import { Form, Input, Select, Switch } from "antd";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { BsHourglassSplit } from "react-icons/bs";
 import { CiGlobe } from "react-icons/ci";
 
@@ -17,12 +17,32 @@ const HttpRequestJSONForm = ({
         isHeaders: false,
         isBody: false,
     });
+    const [initialValues, setInitialValues] = React.useState({});
     console.log(data);
+
+    const editorRef = useRef(null);
+
+    useEffect(() => {
+        // Format the editor content once it's loaded and set the value
+        if (editorRef.current) {
+            editorRef.current.getAction("editor.action.formatDocument").run();
+        }
+    }, []);
 
     const onFinish = (values) => {
         const updatedNodeList = nodeList?.data?.map((node) => {
             if (node.id === data.id) {
-                return JSON.parse(values.json)
+                const parseData = JSON.parse(values.json);
+
+                return {
+                    id: parseData.id,
+                    slug: parseData.slug,
+                    x: parseData?.x,
+                    y: parseData.y,
+                    inputs: node.inputs,
+                    outputs: node.outputs,
+                    ...(parseData.formData && { formData: parseData.formData }),
+                };
             }
             return node;
         });
@@ -33,18 +53,27 @@ const HttpRequestJSONForm = ({
         }));
         handleSubmit(updatedNodeList);
         handleFormDrawerClose();
-        console.log(values);
+        console.log(JSON.parse(values.json));
     };
 
     // console.log({ data })
 
     useEffect(() => {
         if (data) {
-            form.setFieldsValue({
-                json: JSON.stringify(data)
-            })
+            const filterData = nodeList?.data?.find(
+                (node) => node.id === data.id
+            );
+            if (filterData) {
+                const formattedJson = JSON.stringify(filterData, null, 2);
+                form.setFieldsValue({
+                    json: formattedJson,
+                });
+                setInitialValues({
+                    json: formattedJson,
+                });
+            }
         }
-    }, [data])
+    }, [data]);
 
     return (
         <div className="pb-6">
@@ -74,7 +103,7 @@ const HttpRequestJSONForm = ({
                             rules={[
                                 {
                                     required: true,
-                                    message: "Please input jsons!",
+                                    message: "Please input json!",
                                 },
                             ]}
                             name="json"
@@ -82,13 +111,16 @@ const HttpRequestJSONForm = ({
                             <Editor
                                 height="550px"
                                 defaultLanguage="json"
-                                defaultValue={JSON.stringify(data)}
+                                value={initialValues.json}
                                 theme="vs-dark"
                                 onChange={(value) =>
                                     form.setFieldsValue({
                                         json: value,
                                     })
                                 }
+                                onMount={(editor, monaco) => {
+                                    editorRef.current = editor; // Reference to Monaco editor instance
+                                }}
                             />
                         </Form.Item>
                     </div>
