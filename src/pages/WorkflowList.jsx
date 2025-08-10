@@ -1,9 +1,10 @@
 // WorkflowList.jsx
-import React, { useEffect, useState } from "react";
-import { message, Table } from "antd";
+import React, {useEffect, useState} from "react";
+import {message, Table} from "antd";
 import axios from "axios";
-import { MdDelete, MdEdit } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import {MdDelete, MdEdit} from "react-icons/md";
+import {useNavigate} from "react-router-dom";
+import {WORKFLOW_DELETE_BY_ID, WORKFLOW_LIST} from "../constants/ApiUrl.js";
 
 const WorkflowList = () => {
     const [workflowList, setWorkflowList] = useState([]);
@@ -15,7 +16,7 @@ const WorkflowList = () => {
 
     const fetchWorkflowList = async () => {
         const res = await axios.get(
-            `http://192.168.68.160:7890/api/1.0.0/workflows`,
+            WORKFLOW_LIST,
             {
                 params: {
                     size: 1000,
@@ -29,7 +30,7 @@ const WorkflowList = () => {
     const deleteWorkflow = async (id) => {
         try {
             await axios.delete(
-                `http://192.168.68.160:7890/api/1.0.0/workflows/delete/${id}`
+                `${WORKFLOW_DELETE_BY_ID}/${id}`
             );
             message.success("Workflow deleted successfully");
             // Remove the deleted workflow from the state
@@ -61,13 +62,13 @@ const WorkflowList = () => {
                         onClick={() => navigate(`/workflow?id=${data.id}`)}
                         className="bg-[#EF4E39] p-2 rounded-md cursor-pointer"
                     >
-                        <MdEdit className="text-white text-base" />
+                        <MdEdit className="text-white text-base"/>
                     </button>
                     <button
                         onClick={() => deleteWorkflow(data.id)}
                         className="bg-[#EF4E39] p-2 rounded-md cursor-pointer"
                     >
-                        <MdDelete className="text-white text-base" />
+                        <MdDelete className="text-white text-base"/>
                     </button>
                 </div>
             ),
@@ -89,7 +90,7 @@ const WorkflowList = () => {
                     </span>
                 </button>
             </div>
-            <Table columns={columns} dataSource={workflowList} />
+            <Table columns={columns} dataSource={workflowList}/>
         </div>
     );
 };

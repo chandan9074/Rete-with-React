@@ -6,6 +6,8 @@
     "scripts": {
         "dev": "vite --mode dev --host 192.168.68.159 --port 5173",
         "build": "vite build",
+        "build:prod": "vite build --mode prod",
+        "build:dev": "vite build --mode dev",
         "lint": "eslint .",
         "preview": "vite preview"
     },
