@@ -1,6 +1,6 @@
 import React from "react";
-import Nodes from "./components/Nodes";
-import CommonContextProvider from "./context/CommonContextProvider";
+import Nodes from "../components/Nodes";
+import CommonContextProvider from "../context/CommonContextProvider";
 import { ConfigProvider } from "antd";
 
 const NodeWrapper = (props) => {
@@ -41,8 +41,8 @@ const NodeWrapper = (props) => {
                 },
                 components: {
                     Dropdown: {
-                        colorBgElevated: "#2b2a25"
-                    }
+                        colorBgElevated: "#2b2a25",
+                    },
                 },
             }}
         >

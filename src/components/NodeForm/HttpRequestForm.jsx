@@ -18,7 +18,7 @@ const HttpRequestForm = ({
         isBody: false,
     });
     // console.log(data);
-    console.log(nodeList, "http form")
+    console.log(nodeList, "http form");
 
     const onFinish = (values) => {
         console.log(data.id, "data.id in onFinish");
@@ -61,8 +61,8 @@ const HttpRequestForm = ({
                     onClick={() => form.submit()}
                     className="bg-[#EF4E39] py-1.5 px-3.5 rounded-md flex items-center gap-2"
                 >
-                    <BsHourglassSplit className="text-gray-200" />
-                    <span className="text-gray-200 text-sm">Execute step</span>
+                    {/* <BsHourglassSplit className="text-gray-200" /> */}
+                    <span className="text-gray-200 text-sm">Save</span>
                 </button>
             </div>
             <div className="px-6">

@@ -19,7 +19,7 @@ import NodeWrapper from "./NodeWrapper";
 import {
     useMagneticConnection,
     MagneticConnection,
-} from "./magnetic-connection";
+} from "../magnetic-connection";
 
 export async function createEditor(container, contextProps) {
     const socket = new ClassicPreset.Socket("socket");
@@ -158,6 +158,8 @@ export async function createEditor(container, contextProps) {
             node.status = cfg.status; // Add status to the node data
         }
         node.id = cfg.id; // Ensure the node ID is set correctly
+
+        node.label = cfg.label;
 
         await editor.addNode(node);
         await area.translate(node.id, { x: cfg.x, y: cfg.y });

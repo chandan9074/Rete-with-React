@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { BsHourglassSplit } from "react-icons/bs";
 import { CiGlobe } from "react-icons/ci";
 
-const HttpRequestJSONForm = ({
+const WorkflowJsonForm = ({
     data,
     setNodeList,
     nodeList,
@@ -30,29 +30,14 @@ const HttpRequestJSONForm = ({
     }, []);
 
     const onFinish = (values) => {
-        const updatedNodeList = nodeList?.data?.map((node) => {
-            if (node.id === data.id) {
-                const parseData = JSON.parse(values.json);
+        const parseData = JSON.parse(values.json);
 
-                return {
-                    label: parseData?.label,
-                    id: parseData?.id,
-                    slug: parseData?.slug,
-                    x: parseData?.x,
-                    y: parseData?.y,
-                    inputs: node?.inputs,
-                    outputs: node?.outputs,
-                    ...(parseData.formData && { formData: parseData.formData }),
-                };
-            }
-            return node;
-        });
-        console.log("Updated Node List:", updatedNodeList);
+        console.log("Updated Node List:", parseData);
         setNodeList((prev) => ({
             ...prev,
-            data: updatedNodeList,
+            data: parseData,
         }));
-        handleSubmit(updatedNodeList);
+        handleSubmit(parseData);
         handleFormDrawerClose();
         console.log(JSON.parse(values.json));
     };
@@ -60,21 +45,16 @@ const HttpRequestJSONForm = ({
     // console.log({ data })
 
     useEffect(() => {
-        if (data) {
-            const filterData = nodeList?.data?.find(
-                (node) => node.id === data.id
-            );
-            if (filterData) {
-                const formattedJson = JSON.stringify(filterData, null, 2);
-                form.setFieldsValue({
-                    json: formattedJson,
-                });
-                setInitialValues({
-                    json: formattedJson,
-                });
-            }
+        if (nodeList) {
+            const formattedJson = JSON.stringify(nodeList.data, null, 2);
+            form.setFieldsValue({
+                json: formattedJson,
+            });
+            setInitialValues({
+                json: formattedJson,
+            });
         }
-    }, [data]);
+    }, [nodeList]);
 
     return (
         <div className="pb-6">
@@ -131,4 +111,4 @@ const HttpRequestJSONForm = ({
     );
 };
 
-export default HttpRequestJSONForm;
+export default WorkflowJsonForm;

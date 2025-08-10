@@ -6,10 +6,9 @@ export function CustomSocket({ data }) {
     const size = 16;
 
     return (
-        <div className="relative">
-            <div
-                title={data.name}
-                className="
+        <div
+            title={data.name}
+            className="
         inline-block
         cursor-pointer
         align-middle
@@ -19,7 +18,6 @@ export function CustomSocket({ data }) {
         hover:bg-gray-200
         w-4 h-4 rounded-full
       "
-            />
-        </div>
+        />
     );
 }

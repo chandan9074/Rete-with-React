@@ -6,6 +6,7 @@ import { useCommon } from "../context/CommonContextProvider";
 import EditFieldsForm from "./NodeForm/EditFieldsForm";
 import SendAMessageForm from "./NodeForm/SendAMessageForm";
 import HttpRequestJSONForm from "./NodeForm/HttpRequestJSONForm";
+import WorkflowJsonForm from "./NodeForm/WorkflowJsonForm";
 
 const FormDrawer = ({
     openFormDrawer,
@@ -15,7 +16,7 @@ const FormDrawer = ({
     nodeList,
     handleSubmit,
     setUpdateAdJson,
-    updateAsJson
+    updateAsJson,
 }) => {
     // const { openFormDrawer } = useCommon();
 
@@ -27,6 +28,7 @@ const FormDrawer = ({
         onASchedule: ScheduleTriggerForm,
         editFields: EditFieldsForm,
         sendAMessage: SendAMessageForm,
+        workflowJsonUpdate: WorkflowJsonForm,
     };
 
     useEffect(() => {
@@ -66,11 +68,14 @@ const FormDrawer = ({
             }}
         >
             <Drawer
-                width={`${selectedNode?.slug === "editFields" ||
+                width={`${
+                    selectedNode?.slug === "editFields" ||
                     selectedNode?.slug === "sendAMessage"
-                    ? "90%"
-                    : "420px"
-                    }`}
+                        ? "90%"
+                        : updateAsJson
+                        ? "50%"
+                        : "420px"
+                }`}
                 closable={false}
                 onClose={handleFormDrawerClose}
                 open={openFormDrawer}

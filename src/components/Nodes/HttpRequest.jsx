@@ -38,7 +38,7 @@ export function HttpRequest(props) {
         nodeList,
         handleNodeData,
         updateAsJson,
-        setUpdateAdJson
+        setUpdateAdJson,
     } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);
@@ -80,7 +80,7 @@ export function HttpRequest(props) {
     const handleMenuOptionClick = async (event, option) => {
         event.stopPropagation();
 
-        console.log("click")
+        console.log("click");
 
         switch (option) {
             case "Duplicate":
@@ -115,7 +115,6 @@ export function HttpRequest(props) {
         //     setMenuVisible(false); // Close the menu if clicked outside
         // }
         setMenuVisible(false); // Close the menu if clicked outside
-
     };
 
     useEffect(() => {
@@ -138,47 +137,49 @@ export function HttpRequest(props) {
     console.log(data, "data in HttpRequest.jsx");
 
     const items = [
-        {
-            label: (
-                <button className="w-[200px] text-left flex items-center justify-between">
-                    <span>Execute Step</span>
-                    <FcProcess className="text-base text-white" />
-                </button>
-            ),
-            key: '3',
-        },
-        {
-            label: (
-                <button className="w-[200px] text-left flex items-center justify-between">
-                    <span>Rename</span>
-                    <MdEdit className="text-base" />
-                </button>
-            ),
-            key: '0',
-        },
+        // {
+        //     label: (
+        //         <button className="w-[200px] text-left flex items-center justify-between">
+        //             <span>Execute Step</span>
+        //             <FcProcess className="text-base text-white" />
+        //         </button>
+        //     ),
+        //     key: '3',
+        // },
+        // {
+        //     label: (
+        //         <button className="w-[200px] text-left flex items-center justify-between">
+        //             <span>Rename</span>
+        //             <MdEdit className="text-base" />
+        //         </button>
+        //     ),
+        //     key: "0",
+        // },
         {
             label: (
                 <button
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => handleMenuOptionClick(e, "Duplicate")}
-                    className="w-[200px] text-left flex items-center justify-between">
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
                     <span>Duplicate</span>
                     <HiOutlineDocumentDuplicate className="text-base" />
                 </button>
             ),
-            key: '1',
+            key: "1",
         },
         {
             label: (
                 <button
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => handleMenuOptionClick(e, "Delete")}
-                    className="w-[200px] text-left flex items-center justify-between">
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
                     <span>Delete</span>
                     <MdDelete className="text-base" />
                 </button>
             ),
-            key: '4',
+            key: "4",
         },
         {
             label: (
@@ -187,12 +188,13 @@ export function HttpRequest(props) {
                         setUpdateAdJson(!updateAsJson);
                         handleNodeDoubleClick(e);
                     }}
-                    className="w-[200px] text-left flex items-center justify-between">
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
                     <span>Update JSON</span>
                     <PiBracketsCurlyBold className="text-base" />
                 </button>
             ),
-            key: '2',
+            key: "2",
         },
     ];
 
@@ -202,9 +204,10 @@ export function HttpRequest(props) {
                 ref={nodeRef} // Attach the ref to the node element
                 data-testid="node"
                 className={
-                    `bg-[#414244] relative  border-2 ${data?.status === "success"
-                        ? "border-green-500"
-                        : "border-gray-300"
+                    `bg-[#414244] relative  border-2 ${
+                        data?.status === "success"
+                            ? "border-green-500"
+                            : "border-gray-300"
                     } rounded-lg p-7 shadow-md` +
                     (selected ? " border-red-500" : "")
                 }
@@ -271,8 +274,9 @@ export function HttpRequest(props) {
                                         key={key}
                                         className="control block"
                                         style={{
-                                            padding: `${socketMargin}px ${socketSize / 2 + socketMargin
-                                                }px`,
+                                            padding: `${socketMargin}px ${
+                                                socketSize / 2 + socketMargin
+                                            }px`,
                                         }}
                                     >
                                         <RefControl
@@ -322,7 +326,11 @@ export function HttpRequest(props) {
                     </div>
                 </div>
             )} */}
-            <div className={`absolute -top-10 w-full p-3  group-hover:flex ${menuVisible ? "flex" : "hidden"} items-center justify-center gap-2.5`}>
+            <div
+                className={`absolute -top-10 w-full p-3  group-hover:flex ${
+                    menuVisible ? "flex" : "hidden"
+                } items-center justify-center gap-2.5`}
+            >
                 <button
                     onClick={handleNodeData}
                     onPointerDown={(e) => e.stopPropagation()}
@@ -344,12 +352,13 @@ export function HttpRequest(props) {
                 >
                     <IoIosSettings className="text-lg text-gray-500" />
                 </button>
-                <Dropdown menu={{ items }} trigger={['click']}>
+                <Dropdown menu={{ items }} trigger={["click"]}>
                     <button
                         onClick={() => setMenuVisible(true)}
                         // onClick={e => e.preventDefault()}
                         onPointerDown={(e) => e.stopPropagation()}
-                        className="cursor-pointer">
+                        className="cursor-pointer"
+                    >
                         <BsThreeDots className="text-lg text-gray-500" />
                     </button>
                 </Dropdown>
