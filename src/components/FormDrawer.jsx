@@ -69,12 +69,11 @@ const FormDrawer = ({
         >
             <Drawer
                 width={`${
-                    selectedNode?.slug === "editFields" ||
-                    selectedNode?.slug === "sendAMessage"
-                        ? "90%"
+                    selectedNode?.slug === "triggerManually"
+                        ? "420px"
                         : updateAsJson
                         ? "50%"
-                        : "420px"
+                        : "90%"
                 }`}
                 closable={false}
                 onClose={handleFormDrawerClose}
