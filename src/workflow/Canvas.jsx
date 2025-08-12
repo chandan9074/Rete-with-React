@@ -1,14 +1,20 @@
-import React, {useEffect, useRef, useState} from "react";
-import {createEditor} from "./editor";
-import {HiPlusSm} from "react-icons/hi";
+import React, { useEffect, useRef, useState } from "react";
+import { createEditor } from "./editor";
+import { HiPlusSm } from "react-icons/hi";
 import SideDrawer from "../components/SideDrawer";
 import FormDrawer from "../components/FormDrawer";
-import {useCommon} from "../context/CommonContextProvider";
-import {BsHourglassSplit} from "react-icons/bs";
+import { useCommon } from "../context/CommonContextProvider";
+import { BsHourglassSplit } from "react-icons/bs";
 import axios from "axios";
-import {useLocation, useNavigate} from "react-router-dom";
-import {LuArrowLeft} from "react-icons/lu";
-import {WORKFLOW_BY_ID, WORKFLOW_CREATE, WORKFLOW_EXECUTE_BY_ID, WORKFLOW_UPDATE} from "../constants/ApiUrl.js";
+import { useLocation, useNavigate } from "react-router-dom";
+import { LuArrowLeft } from "react-icons/lu";
+import {
+    WORKFLOW_BY_ID,
+    WORKFLOW_CREATE,
+    WORKFLOW_EXECUTE_BY_ID,
+    WORKFLOW_UPDATE,
+} from "../constants/ApiUrl.js";
+import RenameModal from "../components/RenameModal.jsx";
 
 export default function Canvas() {
     // const [editorInstance, setEditorInstance] = useState(null); // Store editor instance
@@ -48,7 +54,7 @@ export default function Canvas() {
     const [open, setOpen] = useState(false); // State to manage the side drawer visibility
     // const [openFormDrawer, setOpenFormDrawer] = useState(false); // State to manage the form drawer visibility
     // const [selectedNode, setSelectedNode] = useState(null); // State to manage the selected node
-    const {openFormDrawer, setOpenFormDrawer, selectedNode, setSelectedNode} =
+    const { openFormDrawer, setOpenFormDrawer, selectedNode, setSelectedNode } =
         useCommon(); // Destructure the context to use common state if needed
     const editorContainerRef = useRef(null); // Reference to the editor container
     const editorInitialized = useRef(false); // To ensure the editor initializes only once
@@ -69,11 +75,12 @@ export default function Canvas() {
     const location = useLocation();
     const [workflowData, setWorkflowData] = useState(null); // State to manage workflow data
     const [updateAsJson, setUpdateAdJson] = useState(false);
+    const [openRenameModal, setOpenRenameModal] = useState(null); // State to manage the rename modal visibility
 
     // Parse query parameters
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get("id"); // Get the 'id' query parameter
-    console.log({id}); // This will now correctly log the 'id' value
+    console.log({ id }); // This will now correctly log the 'id' value
 
     useEffect(() => {
         if (!editorInitialized.current) {
@@ -91,10 +98,12 @@ export default function Canvas() {
                 handleExecution,
                 setUpdateAdJson,
                 updateAsJson,
+                setOpenRenameModal,
+                openRenameModal,
             })
                 .then((editorInstance) => {
                     console.log("Editor initialized successfully");
-                    console.log({editorInstance});
+                    console.log({ editorInstance });
                     editorContainerRef.current.editor = editorInstance; // Store the editor instance
                 })
                 .catch((error) =>
@@ -123,8 +132,8 @@ export default function Canvas() {
 
         // Dynamically add the new node to the editor
         if (editorContainerRef.current) {
-            const {addNode} = editorContainerRef.current.editor;
-            console.log({addNode});
+            const { addNode } = editorContainerRef.current.editor;
+            console.log({ addNode });
             addNode(newNode);
             setSelectedNode(newNode);
             // editor.addNode(newNode); // Add the new node directly to the editor
@@ -177,11 +186,9 @@ export default function Canvas() {
 
     const handleGetNodes = async (wfId) => {
         try {
-            const res = await axios.get(
-                `${WORKFLOW_BY_ID}/${wfId}`
-            );
+            const res = await axios.get(`${WORKFLOW_BY_ID}/${wfId}`);
 
-            console.log({res});
+            console.log({ res });
             if (res.data && res.data.nodes && res.data.connections) {
                 setWorkflowData(res.data); // Store the workflow data in state
                 // setNodeList({ data: res.data.nodes }); // Update nodeList with the fetched nodes
@@ -197,7 +204,7 @@ export default function Canvas() {
                 for (const node of existingNodes) {
                     await editor.deleteNode(node.id);
                 }
-                setNodeList({data: []}); // Clear the nodeList state
+                setNodeList({ data: [] }); // Clear the nodeList state
 
                 // Add new nodes
                 const nodeMap = {}; // Map to store added nodes for quick lookup
@@ -205,9 +212,9 @@ export default function Canvas() {
                     // Replace newNode.id with newNode.frontendId
                     newNode.id = newNode.frontendId;
 
-                    const {addNode} = editorContainerRef.current.editor;
+                    const { addNode } = editorContainerRef.current.editor;
                     const addedNode = await addNode(newNode); // Wait for the node to be added
-                    console.log({addedNode});
+                    console.log({ addedNode });
                     nodeMap[newNode.id] = addedNode; // Store the added node in the map
                 }
 
@@ -217,7 +224,7 @@ export default function Canvas() {
 
                 // Add connections after all nodes are added
                 for (const connection of newConnections) {
-                    const {addConnection} = editorContainerRef.current.editor;
+                    const { addConnection } = editorContainerRef.current.editor;
 
                     // Ensure source and target nodes exist in the editor
                     const sourceNode = nodeMap[connection.sourceNodeFrontendId];
@@ -256,9 +263,7 @@ export default function Canvas() {
                 }, 5000);
 
                 // Execute the workflow
-                const res = await axios.post(
-                    `${WORKFLOW_EXECUTE_BY_ID}/${id}`
-                );
+                const res = await axios.post(`${WORKFLOW_EXECUTE_BY_ID}/${id}`);
 
                 console.log("API Response:", res);
 
@@ -297,21 +302,18 @@ export default function Canvas() {
                     y: node.y,
                     inputs: node.inputs,
                     outputs: node.outputs,
-                    ...(node.formData && {formData: node.formData}),
+                    ...(node.formData && { formData: node.formData }),
                 })),
                 connections,
             };
 
-            console.log({data, nodeList});
+            console.log({ data, nodeList });
 
-            const res = await axios.post(
-                WORKFLOW_CREATE,
-                data
-            );
+            const res = await axios.post(WORKFLOW_CREATE, data);
 
             navigate(`?id=${res.data.id}`);
 
-            console.log({res});
+            console.log({ res });
         }
     };
 
@@ -348,21 +350,18 @@ export default function Canvas() {
                     y: node.y,
                     inputs: node.inputs,
                     outputs: node.outputs,
-                    ...(node.formData && {formData: node.formData}),
+                    ...(node.formData && { formData: node.formData }),
                 })),
                 connections, // Update connections with the current state
             };
 
-            console.log({workflowData, data, nodeList});
+            console.log({ workflowData, data, nodeList });
 
-            const res = await axios.put(
-                `${WORKFLOW_UPDATE}/${id}`,
-                data
-            );
+            const res = await axios.put(`${WORKFLOW_UPDATE}/${id}`, data);
 
             handleGetNodes(id); // Refresh the nodes after update
 
-            console.log({res});
+            console.log({ res });
         }
     };
 
@@ -384,7 +383,7 @@ export default function Canvas() {
                     onClick={() => navigate("/workflow-list")}
                     className="bg-gray-200 p-2 rounded-md cursor-pointer"
                 >
-                    <LuArrowLeft className="text-[#2D2E2E] text-xl"/>
+                    <LuArrowLeft className="text-[#2D2E2E] text-xl" />
                 </button>
             </div>
             <div className="absolute top-5 right-10 flex items-center gap-3">
@@ -404,7 +403,7 @@ export default function Canvas() {
                             // onClick={() => handleExecution(nodeList)}
                             className=" bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md items-center gap-2 flex cursor-pointer"
                         >
-                            <BsHourglassSplit className="text-gray-200"/>
+                            <BsHourglassSplit className="text-gray-200" />
                             <span className="text-gray-200 text-sm font-semibold whitespace-nowrap">
                                 Execute Workflow
                             </span>
@@ -436,7 +435,7 @@ export default function Canvas() {
                     onClick={() => setOpen(true)}
                     className=" p-1 border border-gray-300 rounded-md cursor-pointer"
                 >
-                    <HiPlusSm className="text-4xl text-gray-300"/>
+                    <HiPlusSm className="text-4xl text-gray-300" />
                 </button>
             </div>
             <SideDrawer
@@ -454,10 +453,16 @@ export default function Canvas() {
                 setUpdateAdJson={setUpdateAdJson}
                 updateAsJson={updateAsJson}
             />
+            <RenameModal
+                nodeList={nodeList}
+                setNodeList={setNodeList}
+                openRenameModal={openRenameModal}
+                setOpenRenameModal={setOpenRenameModal}
+            />
             <div
                 ref={editorContainerRef}
                 className="bg-[#2D2E2E]"
-                style={{height: "100vh", width: "100vw"}}
+                style={{ height: "100vh", width: "100vw" }}
             ></div>
         </div>
     );

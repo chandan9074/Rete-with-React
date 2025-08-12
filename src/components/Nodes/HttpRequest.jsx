@@ -34,6 +34,7 @@ export function HttpRequest(props) {
         openFormDrawer,
         setOpenFormDrawer,
         selectedNode,
+        setOpenRenameModal,
         setSelectedNode,
         nodeList,
         handleNodeData,
@@ -48,7 +49,6 @@ export function HttpRequest(props) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const nodeRef = useRef(null); // Reference to the node element
-    const menuRef = useRef(null);
     // const { openFormDrawer, setOpenFormDrawer, selectedNode, setSelectedNode } =
     //     useCommon();
 
@@ -146,15 +146,19 @@ export function HttpRequest(props) {
         //     ),
         //     key: '3',
         // },
-        // {
-        //     label: (
-        //         <button className="w-[200px] text-left flex items-center justify-between">
-        //             <span>Rename</span>
-        //             <MdEdit className="text-base" />
-        //         </button>
-        //     ),
-        //     key: "0",
-        // },
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => setOpenRenameModal(data)}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Rename</span>
+                    <MdEdit className="text-base" />
+                </button>
+            ),
+            key: "0",
+        },
         {
             label: (
                 <button
@@ -293,39 +297,6 @@ export function HttpRequest(props) {
                     HTTP Request
                 </p>
             </div>
-            {/* {menuVisible && (
-                <div
-                    ref={menuRef}
-                    className="absolute bg-gray-700 text-white rounded shadow-md p-2"
-                    style={{
-                        top: menuPosition.y,
-                        right: -(menuPosition.x + 110),
-                        zIndex: 1000,
-                    }}
-                >
-                    <button
-                        onClick={(e) => handleMenuOptionClick(e, "Duplicate")}
-                        className="p-2 hover:bg-gray-600 cursor-pointer"
-                        onPointerDown={(e) => e.stopPropagation()}
-                    >
-                        Duplicate
-                    </button>
-                    <div
-                        className="p-2 hover:bg-gray-600 cursor-pointer"
-                        onClick={(e) => handleMenuOptionClick(e, "Delete")}
-                        onPointerDown={(e) => e.stopPropagation()}
-                    >
-                        Delete
-                    </div>
-                    <div
-                        className="p-2 hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleMenuOptionClick("Copy")}
-                        onPointerDown={(e) => e.stopPropagation()}
-                    >
-                        Copy
-                    </div>
-                </div>
-            )} */}
             <div
                 className={`absolute -top-10 w-full p-3  group-hover:flex ${
                     menuVisible ? "flex" : "hidden"

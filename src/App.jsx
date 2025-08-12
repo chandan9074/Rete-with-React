@@ -33,6 +33,9 @@ export default function App() {
                         itemBg: "#3c3c3c",
                         colorText: "#f4f4f4",
                     },
+                    Modal: {
+                        contentBg: "#2D2E2E",
+                    },
                 },
             }}
         >
