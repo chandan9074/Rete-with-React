@@ -280,6 +280,30 @@ export default function Canvas() {
             }
         }
     };
+
+    const handleSingleNodeExecution = async (nodeId) => {
+        if (id) {
+            try {
+                handleGetNodes(id);
+                // Start polling handleGetNodes every 5 seconds
+                intervalId = setInterval(() => {
+                    handleGetNodes(id);
+                }, 5000);
+
+                // Execute the workflow for a single node
+                const res = await axios.post(
+                    `${WORKFLOW_EXECUTE_BY_ID}/${id}`,
+                    { nodeId }
+                );
+
+                console.log("Single Node Execution Response:", res);
+                handleGetNodes(id); // Refresh the nodes after execution
+            } catch (error) {
+                console.error("Error executing single node:", error);
+            }
+        }
+    };
+
     const handleCreate = async () => {
         if (editorContainerRef.current) {
             const editor = editorContainerRef.current.editor;
@@ -362,6 +386,7 @@ export default function Canvas() {
             handleGetNodes(id); // Refresh the nodes after update
 
             console.log({ res });
+            return res.data; // Return the updated workflow data
         }
     };
 
@@ -452,6 +477,7 @@ export default function Canvas() {
                 handleSubmit={handleSubmit}
                 setUpdateAdJson={setUpdateAdJson}
                 updateAsJson={updateAsJson}
+                handleUpdateWorkflow={handleUpdateWorkflow}
             />
             <RenameModal
                 nodeList={nodeList}

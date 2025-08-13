@@ -10,6 +10,7 @@ const HttpRequestForm = ({
     setNodeList,
     nodeList,
     handleSubmit,
+    handleUpdateWorkflow,
     handleFormDrawerClose,
 }) => {
     const [form] = Form.useForm();
@@ -18,6 +19,11 @@ const HttpRequestForm = ({
         isHeaders: false,
         isBody: false,
     });
+    const [buttonType, setButtonType] = React.useState("");
+    // Parse query parameters
+    const queryParams = new URLSearchParams(location.search);
+    const id = queryParams.get("id"); // Get the 'id' query parameter
+
     console.log({ data });
     console.log(nodeList, "http form");
 
@@ -44,7 +50,7 @@ const HttpRequestForm = ({
         }
     }, [data, nodeList]);
 
-    const onFinish = (values) => {
+    const onFinish = async (values) => {
         console.log(data.id, "data.id in onFinish");
         console.log(nodeList, "nodeList in onFinish");
         const updatedNodeList = nodeList?.data?.map((node) => {
@@ -69,7 +75,13 @@ const HttpRequestForm = ({
             ...prev,
             data: updatedNodeList,
         }));
-        handleSubmit(updatedNodeList);
+        // handleSubmit(updatedNodeList);
+        if (buttonType === "execute") {
+            if (id) {
+                const updatedData = await handleUpdateWorkflow();
+            } else {
+            }
+        }
         handleFormDrawerClose();
         console.log(values);
     };
@@ -104,13 +116,29 @@ const HttpRequestForm = ({
                         <CiGlobe className="text-2xl text-[#8F87F7]" />
                         <p className="text-gray-200 text-lg">Http Request</p>
                     </div>
-                    <button
-                        onClick={() => form.submit()}
-                        className="bg-[#EF4E39] py-1.5 px-3.5 rounded-md flex items-center gap-2"
-                    >
-                        {/* <BsHourglassSplit className="text-gray-200" /> */}
-                        <span className="text-gray-200 text-sm">Save</span>
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => {
+                                setButtonType("execute");
+                                form.submit();
+                            }}
+                            className="bg-[#EF4E39] py-1.5 px-3.5 rounded-md flex items-center gap-2"
+                        >
+                            <BsHourglassSplit className="text-gray-200" />
+                            <span className="text-gray-200 text-sm">
+                                Execute Step
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => {
+                                setButtonType("save");
+                                form.submit();
+                            }}
+                            className="bg-[#EF4E39] py-1.5 px-3.5 rounded-md flex items-center gap-2"
+                        >
+                            <span className="text-gray-200 text-sm">Save</span>
+                        </button>
+                    </div>
                 </div>
                 <div className="px-6">
                     <Form

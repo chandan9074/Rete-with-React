@@ -15,6 +15,7 @@ const FormDrawer = ({
     setNodeList,
     nodeList,
     handleSubmit,
+    handleUpdateWorkflow,
     setUpdateAdJson,
     updateAsJson,
 }) => {
@@ -86,6 +87,7 @@ const FormDrawer = ({
                         nodeList={nodeList}
                         handleSubmit={handleSubmit}
                         handleFormDrawerClose={handleFormDrawerClose}
+                        handleUpdateWorkflow={handleUpdateWorkflow}
                     />
                 </div>
             </Drawer>
