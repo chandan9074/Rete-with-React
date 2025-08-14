@@ -11,7 +11,10 @@ const HttpRequestForm = ({
     nodeList,
     handleSubmit,
     handleUpdateWorkflow,
+    handleSingleNodeExecution,
     handleFormDrawerClose,
+    nodeInputOutputs,
+    executeLoading,
 }) => {
     const [form] = Form.useForm();
     const [switchData, setSwitchData] = React.useState({
@@ -20,12 +23,13 @@ const HttpRequestForm = ({
         isBody: false,
     });
     const [buttonType, setButtonType] = React.useState("");
+
     // Parse query parameters
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get("id"); // Get the 'id' query parameter
 
     console.log({ data });
-    console.log(nodeList, "http form");
+    console.log(nodeInputOutputs, "nodeInputOutputs");
 
     useEffect(() => {
         if (data && nodeList?.data?.length > 0) {
@@ -78,11 +82,24 @@ const HttpRequestForm = ({
         // handleSubmit(updatedNodeList);
         if (buttonType === "execute") {
             if (id) {
-                const updatedData = await handleUpdateWorkflow();
-            } else {
+                const updatedData = await handleUpdateWorkflow(updatedNodeList);
+                console.log("Updated Data:", updatedData, data);
+                const filteredData = updatedData?.nodes?.find(
+                    (node) => node.frontendId === data.id
+                );
+                console.log(filteredData, "filteredData in onFinish");
+
+                const res = await handleSingleNodeExecution(
+                    filteredData.id,
+                    filteredData.frontendId
+                );
+
+                console.log(res, "res in onFinish");
             }
+        } else if (buttonType === "save") {
+            await handleUpdateWorkflow(updatedNodeList);
         }
-        handleFormDrawerClose();
+        // handleFormDrawerClose();
         console.log(values);
     };
 
@@ -98,7 +115,12 @@ const HttpRequestForm = ({
                     }}
                     height="85vh"
                     defaultLanguage="json"
-                    defaultValue={JSON.stringify(defaultJson, null, 2)}
+                    value={JSON.stringify(
+                        nodeInputOutputs.find((node) => node.id === data.id)
+                            ?.input || {},
+                        null,
+                        2
+                    )}
                     theme="my-theme"
                     beforeMount={(monaco) => {
                         monaco.editor.defineTheme("my-theme", monacoTheme);
@@ -122,9 +144,13 @@ const HttpRequestForm = ({
                                 setButtonType("execute");
                                 form.submit();
                             }}
-                            className="bg-[#EF4E39] py-1.5 px-3.5 rounded-md flex items-center gap-2"
+                            className="bg-[#EF4E39] py-1.5 px-3.5 rounded-md flex items-center gap-2 cursor-pointer"
                         >
-                            <BsHourglassSplit className="text-gray-200" />
+                            <BsHourglassSplit
+                                className={`text-gray-200 ${
+                                    executeLoading && "animate-spin"
+                                }`}
+                            />
                             <span className="text-gray-200 text-sm">
                                 Execute Step
                             </span>
@@ -134,7 +160,7 @@ const HttpRequestForm = ({
                                 setButtonType("save");
                                 form.submit();
                             }}
-                            className="bg-[#EF4E39] py-1.5 px-3.5 rounded-md flex items-center gap-2"
+                            className="bg-[#EF4E39] py-1.5 px-3.5 rounded-md flex items-center gap-2 cursor-pointer"
                         >
                             <span className="text-gray-200 text-sm">Save</span>
                         </button>
@@ -352,7 +378,12 @@ const HttpRequestForm = ({
                     }}
                     height="85vh"
                     defaultLanguage="json"
-                    defaultValue={JSON.stringify(defaultJson, null, 2)}
+                    value={JSON.stringify(
+                        nodeInputOutputs.find((node) => node.id === data.id)
+                            ?.output || {},
+                        null,
+                        2
+                    )}
                     theme="my-theme"
                     beforeMount={(monaco) => {
                         monaco.editor.defineTheme("my-theme", monacoTheme);

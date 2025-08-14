@@ -16,8 +16,11 @@ const FormDrawer = ({
     nodeList,
     handleSubmit,
     handleUpdateWorkflow,
+    handleSingleNodeExecution,
     setUpdateAdJson,
     updateAsJson,
+    nodeInputOutputs,
+    executeLoading,
 }) => {
     // const { openFormDrawer } = useCommon();
 
@@ -88,6 +91,9 @@ const FormDrawer = ({
                         handleSubmit={handleSubmit}
                         handleFormDrawerClose={handleFormDrawerClose}
                         handleUpdateWorkflow={handleUpdateWorkflow}
+                        handleSingleNodeExecution={handleSingleNodeExecution}
+                        nodeInputOutputs={nodeInputOutputs}
+                        executeLoading={executeLoading}
                     />
                 </div>
             </Drawer>

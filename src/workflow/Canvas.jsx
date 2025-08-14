@@ -12,9 +12,11 @@ import {
     WORKFLOW_BY_ID,
     WORKFLOW_CREATE,
     WORKFLOW_EXECUTE_BY_ID,
+    WORKFLOW_SINGLE_NODE_EXECUTE_BY_ID,
     WORKFLOW_UPDATE,
 } from "../constants/ApiUrl.js";
 import RenameModal from "../components/RenameModal.jsx";
+import { message } from "antd";
 
 export default function Canvas() {
     // const [editorInstance, setEditorInstance] = useState(null); // Store editor instance
@@ -76,11 +78,13 @@ export default function Canvas() {
     const [workflowData, setWorkflowData] = useState(null); // State to manage workflow data
     const [updateAsJson, setUpdateAdJson] = useState(false);
     const [openRenameModal, setOpenRenameModal] = useState(null); // State to manage the rename modal visibility
+    const [nodeInputOutputs, setNodeInputsOutputs] = useState([]);
+    const [executeLoading, setExecuteLoading] = React.useState(false);
 
     // Parse query parameters
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get("id"); // Get the 'id' query parameter
-    console.log({ id }); // This will now correctly log the 'id' value
+    console.log({ workflowData }); // This will now correctly log the 'id' value
 
     useEffect(() => {
         if (!editorInitialized.current) {
@@ -281,25 +285,98 @@ export default function Canvas() {
         }
     };
 
-    const handleSingleNodeExecution = async (nodeId) => {
+    const handleSingleNodeExecution = async (nodeId, frontendId) => {
         if (id) {
             try {
-                handleGetNodes(id);
-                // Start polling handleGetNodes every 5 seconds
-                intervalId = setInterval(() => {
-                    handleGetNodes(id);
-                }, 5000);
-
                 // Execute the workflow for a single node
+                setExecuteLoading(true); // Set loading state
+
+                message.loading("Executing node...");
+
                 const res = await axios.post(
-                    `${WORKFLOW_EXECUTE_BY_ID}/${id}`,
-                    { nodeId }
+                    `${WORKFLOW_SINGLE_NODE_EXECUTE_BY_ID}/${id}/node/${nodeId}`
                 );
 
                 console.log("Single Node Execution Response:", res);
+                message.success("Node executed successfully");
+                const { response } = res.data;
+
+                console.log(
+                    nodeId,
+                    nodeList,
+                    "nodeId in handleSingleNodeExecution"
+                );
+
+                // Update the nodeInputOutputs state
+                setNodeInputsOutputs((prev) => {
+                    const updatedState = [...prev];
+
+                    // Step 1: Check if nodeId exists in the state
+                    const existingNode = updatedState.find(
+                        (node) => node.id === frontendId
+                    );
+                    if (existingNode) {
+                        // Update the output of the existing node
+                        existingNode.output = response;
+                    } else {
+                        // Add a new object for the node
+                        updatedState.push({
+                            id: frontendId,
+                            output: response,
+                            input: [],
+                        });
+                    }
+
+                    // Step 2: Get connections from the editor
+                    const editor = editorContainerRef.current.editor;
+                    const connections = editor
+                        .getConnections()
+                        .map((connection) => ({
+                            sourceNodeFrontendId: connection.source,
+                            sourceOutput: connection.sourceOutput,
+                            targetNodeFrontendId: connection.target,
+                            targetInput: connection.targetInput,
+                        }));
+
+                    // Step 3: Find all connections where the nodeId is the source
+                    const connectedNodes = connections.filter(
+                        (connection) =>
+                            connection.sourceNodeFrontendId === frontendId
+                    );
+
+                    // Step 4: Update the input of target nodes
+                    connectedNodes.forEach((connection) => {
+                        const targetNodeId = connection.targetNodeFrontendId;
+
+                        // Check if the target node exists in the state
+                        const targetNode = updatedState.find(
+                            (node) => node.id === targetNodeId
+                        );
+                        if (targetNode) {
+                            // Add the response to the input array of the target node
+                            targetNode.input = response;
+                        } else {
+                            // Add a new object for the target node
+                            updatedState.push({
+                                id: targetNodeId,
+                                input: response,
+                                output: null,
+                            });
+                        }
+                    });
+
+                    console.log("Updated Node Inputs/Outputs:", updatedState);
+
+                    setExecuteLoading(false); // Reset loading state
+
+                    return updatedState;
+                });
+
                 handleGetNodes(id); // Refresh the nodes after execution
+                return res.data; // Return the response data if needed
             } catch (error) {
                 console.error("Error executing single node:", error);
+                message.error("Failed to execute node");
             }
         }
     };
@@ -341,7 +418,7 @@ export default function Canvas() {
         }
     };
 
-    const handleUpdateWorkflow = async () => {
+    const handleUpdateWorkflow = async (updatedNodeList) => {
         if (editorContainerRef.current) {
             const editor = editorContainerRef.current.editor;
 
@@ -351,6 +428,15 @@ export default function Canvas() {
                 targetNodeFrontendId: connection.target,
                 targetInput: connection.targetInput,
             }));
+
+            console.log(nodeList, "nodeList in handleUpdateWorkflow");
+            let updateNode = [];
+
+            if (updatedNodeList?.length > 0) {
+                updateNode = updatedNodeList;
+            } else {
+                updateNode = nodeList.data;
+            }
 
             const data = {
                 // name: "New Workflow",
@@ -366,7 +452,7 @@ export default function Canvas() {
                 // })),
                 // connections,
                 ...workflowData, // Use the existing workflow data
-                nodes: nodeList.data.map((node) => ({
+                nodes: updateNode?.map((node) => ({
                     label: node?.label,
                     frontendId: node.id,
                     slug: node.slug,
@@ -379,14 +465,21 @@ export default function Canvas() {
                 connections, // Update connections with the current state
             };
 
-            console.log({ workflowData, data, nodeList });
+            try {
+                console.log({ workflowData, data, nodeList });
 
-            const res = await axios.put(`${WORKFLOW_UPDATE}/${id}`, data);
+                const res = await axios.put(`${WORKFLOW_UPDATE}/${id}`, data);
 
-            handleGetNodes(id); // Refresh the nodes after update
+                handleGetNodes(id); // Refresh the nodes after update
 
-            console.log({ res });
-            return res.data; // Return the updated workflow data
+                message.success("Workflow updated successfully");
+
+                console.log({ res });
+                return res.data; // Return the updated workflow data
+            } catch (error) {
+                console.error("Error updating workflow:", error);
+                throw error; // Rethrow the error for further handling if needed
+            }
         }
     };
 
@@ -403,13 +496,18 @@ export default function Canvas() {
             {/* <button onClick={handleAddNode}>Add Node</button>{" "} */}
             {/* <button onClick={handleExecution}>Submit</button>{" "} */}
             {/* Button to add nodes */}
-            <div className="absolute top-5 left-10 flex items-center gap-3">
+            <div className="absolute top-5 left-10 flex items-center gap-6">
                 <button
                     onClick={() => navigate("/workflow-list")}
                     className="bg-gray-200 p-2 rounded-md cursor-pointer"
                 >
                     <LuArrowLeft className="text-[#2D2E2E] text-xl" />
                 </button>
+                {workflowData && (
+                    <p className="text-3xl text-gray-200 font-bold">
+                        {workflowData?.name}
+                    </p>
+                )}
             </div>
             <div className="absolute top-5 right-10 flex items-center gap-3">
                 {id && (
@@ -478,6 +576,9 @@ export default function Canvas() {
                 setUpdateAdJson={setUpdateAdJson}
                 updateAsJson={updateAsJson}
                 handleUpdateWorkflow={handleUpdateWorkflow}
+                handleSingleNodeExecution={handleSingleNodeExecution}
+                nodeInputOutputs={nodeInputOutputs}
+                executeLoading={executeLoading}
             />
             <RenameModal
                 nodeList={nodeList}

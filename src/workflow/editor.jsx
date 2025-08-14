@@ -273,6 +273,12 @@ export async function createEditor(container, contextProps) {
 
         try {
             await editor.removeNode(nodeId); // Attempt to remove the node
+            setNodeList((prev) => {
+                const updatedList = prev.data.filter(
+                    (item) => item.id !== nodeId
+                );
+                return { ...prev, data: updatedList }; // Update the context state
+            }); // Update the context state to remove the node
         } catch (error) {
             console.error(`Failed to remove node ${nodeId}:`, error);
         }
