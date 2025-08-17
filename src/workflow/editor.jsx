@@ -24,7 +24,7 @@ import {
 export async function createEditor(container, contextProps) {
     const socket = new ClassicPreset.Socket("socket");
 
-    const { nodeList, setNodeList } = contextProps;
+    const { nodeList, setNodeList, handleDuplicateNodeUpdate } = contextProps;
 
     // Initialize editor and plugins
     const editor = new NodeEditor();
@@ -288,6 +288,8 @@ export async function createEditor(container, contextProps) {
         // Get the original node
         const originalNode = editor.getNode(nodeId);
 
+        // console.log(nodeList, nodeId, "nodeList in duplicateNode");
+
         if (!originalNode) {
             console.error(`Node with ID ${nodeId} not found.`);
             return;
@@ -303,15 +305,11 @@ export async function createEditor(container, contextProps) {
             inputs: Object.keys(originalNode.inputs), // Clone inputs
             outputs: Object.keys(originalNode.outputs), // Clone outputs
             slug: originalNode.slug,
-            // subnodes: (originalNode.data.subnodes || []).map((sn) => ({
-            //     ...sn,
-            //     inputs: Object.keys(sn.inputs || {}), // Convert inputs to an array
-            //     outputs: Object.keys(sn.outputs || {}), // Convert outputs to an array
-            // })),
         };
 
         // Create the new node
         await makeNode(newNodeConfig);
+        handleDuplicateNodeUpdate(nodeId, newNodeConfig);
         console.log(`Node duplicated successfully: ${newNodeConfig.id}`);
     };
 

@@ -80,6 +80,7 @@ export default function Canvas() {
     const [openRenameModal, setOpenRenameModal] = useState(null); // State to manage the rename modal visibility
     const [nodeInputOutputs, setNodeInputsOutputs] = useState([]);
     const [executeLoading, setExecuteLoading] = React.useState(false);
+    const [isDuplicateNode, setIsDuplicateNode] = useState(null); // State to manage duplicate node status
 
     // Parse query parameters
     const queryParams = new URLSearchParams(location.search);
@@ -104,6 +105,7 @@ export default function Canvas() {
                 updateAsJson,
                 setOpenRenameModal,
                 openRenameModal,
+                handleDuplicateNodeUpdate,
             })
                 .then((editorInstance) => {
                     console.log("Editor initialized successfully");
@@ -489,6 +491,36 @@ export default function Canvas() {
             slug: "workflowJsonUpdate",
         });
         setUpdateAdJson(true);
+    };
+
+    useEffect(() => {
+        if (isDuplicateNode) {
+            // handleGetNodes(id);
+            console.log("Duplicate node data:", isDuplicateNode, nodeList);
+            const filteredNode = nodeList.data.find(
+                (node) => node.id === isDuplicateNode.id
+            );
+            const duplicateNodeData = {
+                ...isDuplicateNode.duplicateNodeData,
+                ...(filteredNode && filteredNode?.formData
+                    ? { formData: filteredNode.formData }
+                    : {}),
+            };
+
+            setNodeList((prev) => {
+                const updatedList = [...prev.data, duplicateNodeData]; // Create a new array with the new node
+                return { ...prev, data: updatedList }; // Update the context state
+            });
+            setIsDuplicateNode(null); // Reset the duplicate node state
+        }
+    }, [isDuplicateNode]);
+    const handleDuplicateNodeUpdate = (id, duplicateNodeData) => {
+        // console.log(id, workflowData, data, "id in handleDuplicateNodeUpdate");
+        const duplicateData = {
+            id,
+            duplicateNodeData,
+        };
+        setIsDuplicateNode(duplicateData); // Update the state with the duplicate node data
     };
 
     return (
