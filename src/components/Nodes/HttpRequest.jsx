@@ -293,7 +293,7 @@ export function HttpRequest(props) {
                         )}
                     </div>
                 )}
-                <p className="text-gray-200 font-semibold text-sm absolute -left-0 -bottom-7 w-full text-center select-none">
+                <p className="text-gray-200 font-semibold text-sm absolute -left-9 top-28 w-44 text-center select-none">
                     {data.label || "HTTP Request"}
                 </p>
             </div>

@@ -1,8 +1,10 @@
+import { Dropdown } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { AiFillThunderbolt } from "react-icons/ai";
 import { BsHourglassSplit, BsThreeDots } from "react-icons/bs";
 import { FaCheck, FaMousePointer, FaPlay } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
+import { HiOutlineDocumentDuplicate } from "react-icons/hi";
+import { MdDelete, MdEdit } from "react-icons/md";
 import { RingLoader } from "react-spinners";
 import { Presets } from "rete-react-plugin";
 
@@ -25,6 +27,7 @@ export function ManualTrigger(props) {
         deleteNode,
         duplicateNode,
         handleExecution,
+        setOpenRenameModal,
         nodeList,
     } = props;
     const inputs = Object.entries(data.inputs);
@@ -98,6 +101,57 @@ export function ManualTrigger(props) {
             setMenuVisible(false); // Close the menu if clicked outside
         }
     };
+
+    const items = [
+        // {
+        //     label: (
+        //         <button className="w-[200px] text-left flex items-center justify-between">
+        //             <span>Execute Step</span>
+        //             <FcProcess className="text-base text-white" />
+        //         </button>
+        //     ),
+        //     key: '3',
+        // },
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => setOpenRenameModal(data)}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Rename</span>
+                    <MdEdit className="text-base" />
+                </button>
+            ),
+            key: "0",
+        },
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => handleMenuOptionClick(e, "Duplicate")}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Duplicate</span>
+                    <HiOutlineDocumentDuplicate className="text-base" />
+                </button>
+            ),
+            key: "1",
+        },
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => handleMenuOptionClick(e, "Delete")}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Delete</span>
+                    <MdDelete className="text-base" />
+                </button>
+            ),
+            key: "4",
+        },
+    ];
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
@@ -184,26 +238,20 @@ export function ManualTrigger(props) {
                         )}
                     </div>
                 )}
-                <p className="text-gray-200 pt-2 font-semibold text-sm absolute -left-9 -bottom-12 w-44 text-center select-none">
-                    When clicking 'Execute workflow'
+                <p className="text-gray-200 pt-2 font-semibold text-sm absolute -left-9 top-[105px] w-44 text-center select-none">
+                    {data?.label || "When clicking 'Execute workflow'"}
                 </p>
-                {/* <div className="absolute h-full top-0 flex items-center justify-end right-24 px-7 w-60">
-                    <AiFillThunderbolt className="text-[#FF6F5C] text-2xl group-hover:hidden block" />
-                    <button
-                        onClick={() => console.log({ nodeList })}
-                        // onClick={() => handleExecution(nodeList)}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        className="bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md items-center gap-2 group-hover:flex hidden cursor-pointer"
-                    >
-                        <BsHourglassSplit className="text-gray-200" />
-                        <span className="text-gray-200 text-sm font-semibold whitespace-nowrap">
-                            Execute Workflow
-                        </span>
-                    </button>
-                </div> */}
             </div>
-            <div className="absolute -top-10 w-full p-3  group-hover:flex hidden items-center justify-center gap-2.5">
-                <button className="cursor-pointer">
+            <div
+                className={`absolute -top-10 w-full p-3  group-hover:flex ${
+                    menuVisible ? "flex" : "hidden"
+                } items-center justify-center gap-2.5`}
+            >
+                <button
+                    // onClick={handleNodeData}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className="cursor-pointer"
+                >
                     <FaPlay className="text-sm text-gray-500" />
                 </button>
                 <button
@@ -213,12 +261,23 @@ export function ManualTrigger(props) {
                 >
                     <MdDelete className="text-lg text-gray-500" />
                 </button>
-                <button
+                {/* <button
                     className="cursor-pointer"
                     onPointerDown={(e) => e.stopPropagation()}
+                    onClick={handleNodeDoubleClick}
                 >
-                    <BsThreeDots className="text-lg text-gray-500" />
-                </button>
+                    <IoIosSettings className="text-lg text-gray-500" />
+                </button> */}
+                <Dropdown menu={{ items }} trigger={["click"]}>
+                    <button
+                        onClick={() => setMenuVisible(true)}
+                        // onClick={e => e.preventDefault()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        className="cursor-pointer"
+                    >
+                        <BsThreeDots className="text-lg text-gray-500" />
+                    </button>
+                </Dropdown>
             </div>
             {/* {menuVisible && (
                 <div

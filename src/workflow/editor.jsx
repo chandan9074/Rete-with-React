@@ -298,7 +298,9 @@ export async function createEditor(container, contextProps) {
         // Clone the node properties
         console.log("Duplicating node:", originalNode);
         const newNodeConfig = {
-            label: originalNode.label + " (Duplicate)", // Add "Duplicate" to the label
+            label: originalNode.label
+                ? originalNode.label + " (Duplicate)"
+                : originalNode.slug + " (Duplicate)", // Add "Duplicate" to the label
             id: `node_${Date.now()}`, // Generate a unique ID for the new node
             x: originalNode.position.x + 50, // Offset the position slightly
             y: originalNode.position.y + 50,

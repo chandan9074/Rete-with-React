@@ -1,4 +1,4 @@
-export const BACKEND_BASE_URL = "http://192.168.68.160:7890";
+export const BACKEND_BASE_URL = "https://auto-x.zaag-testing.ems24.co";
 export const WORKFLOW_LIST = `${BACKEND_BASE_URL}/api/1.0.0/workflows`;
 export const WORKFLOW_BY_ID = `${BACKEND_BASE_URL}/api/1.0.0/workflows`;
 export const WORKFLOW_DELETE_BY_ID = `${BACKEND_BASE_URL}/api/1.0.0/workflows/delete`;
