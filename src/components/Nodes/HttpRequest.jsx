@@ -302,13 +302,13 @@ export function HttpRequest(props) {
                     menuVisible ? "flex" : "hidden"
                 } items-center justify-center gap-2.5`}
             >
-                <button
+                {/* <button
                     onClick={handleNodeData}
                     onPointerDown={(e) => e.stopPropagation()}
                     className="cursor-pointer"
                 >
                     <FaPlay className="text-sm text-gray-500" />
-                </button>
+                </button> */}
                 <button
                     className="cursor-pointer"
                     onClick={(e) => handleMenuOptionClick(e, "Delete")}
