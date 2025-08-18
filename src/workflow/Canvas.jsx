@@ -523,6 +523,26 @@ export default function Canvas() {
         setIsDuplicateNode(duplicateData); // Update the state with the duplicate node data
     };
 
+    const handleRenameNode = (nodeId, name) => {
+        if (editorContainerRef.current) {
+            const { renameNode } = editorContainerRef.current.editor;
+
+            if (renameNode) {
+                renameNode(nodeId, name); // Call the renameNode function
+                setNodeList((prev) => {
+                    const updatedList = prev.data.map((node) =>
+                        node.id === nodeId ? { ...node, label: name } : node
+                    );
+                    return { ...prev, data: updatedList }; // Update the nodeList state
+                });
+            } else {
+                console.error(
+                    "renameNode function not found in editor instance."
+                );
+            }
+        }
+    };
+
     return (
         <div className="App">
             {/* <button onClick={handleAddNode}>Add Node</button>{" "} */}
@@ -617,6 +637,7 @@ export default function Canvas() {
                 setNodeList={setNodeList}
                 openRenameModal={openRenameModal}
                 setOpenRenameModal={setOpenRenameModal}
+                handleRenameNode={handleRenameNode}
             />
             <div
                 ref={editorContainerRef}

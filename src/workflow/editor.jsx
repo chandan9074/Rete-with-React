@@ -313,6 +313,24 @@ export async function createEditor(container, contextProps) {
         console.log(`Node duplicated successfully: ${newNodeConfig.id}`);
     };
 
+    const renameNode = async (nodeId, newName) => {
+        // Get the node by its ID
+        const node = editor.getNode(nodeId);
+
+        if (!node) {
+            console.error(`Node with ID ${nodeId} not found.`);
+            return;
+        }
+
+        // Update the node's label
+        node.label = newName;
+
+        // Re-render the node to reflect the updated label
+        await area.update("node", nodeId);
+
+        console.log(`Node renamed successfully: ${nodeId} -> ${newName}`);
+    };
+
     const handleNodeData = () => {
         console.log(nodeList, "nodeList in createEditor");
     };
@@ -350,5 +368,6 @@ export async function createEditor(container, contextProps) {
         getConnections: () => editor.getConnections(),
         deleteNode,
         addConnection,
+        renameNode,
     };
 }

@@ -6,9 +6,10 @@ const RenameModal = ({
     setNodeList,
     openRenameModal,
     setOpenRenameModal,
+    handleRenameNode,
 }) => {
     const [form] = Form.useForm();
-    console.log(nodeList, "nodeList in RenameModal");
+    console.log(nodeList, openRenameModal, "nodeList in RenameModal");
 
     useEffect(() => {
         if (openRenameModal) {
@@ -23,7 +24,20 @@ const RenameModal = ({
         }
     }, [openRenameModal]);
 
-    const onFinish = (values) => {};
+    const onFinish = (values) => {
+        console.log({ values });
+        setNodeList((node) => {
+            const updatedNodeList = node.data.map((item) => {
+                if (item.id === openRenameModal.id) {
+                    return { ...item, label: values.name };
+                }
+                return item;
+            });
+            return { ...node, data: updatedNodeList };
+        });
+        handleRenameNode(openRenameModal.id, values.name);
+        setOpenRenameModal(null);
+    };
 
     return (
         <Modal
@@ -59,15 +73,15 @@ const RenameModal = ({
                         className="bg-[#f4f4f4]"
                         placeholder="xyz"
                     />
-                    <button
-                        type="submit"
-                        className=" bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md justify-center gap-2 flex cursor-pointer mt-6 w-full"
-                    >
-                        <span className="text-gray-200 text-sm font-semibold whitespace-nowrap">
-                            Save
-                        </span>
-                    </button>
                 </Form.Item>
+                <button
+                    type="submit"
+                    className=" bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md justify-center gap-2 flex cursor-pointer mt-6 w-full"
+                >
+                    <span className="text-gray-200 text-sm font-semibold whitespace-nowrap">
+                        Save
+                    </span>
+                </button>
             </Form>
         </Modal>
     );
