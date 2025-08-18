@@ -333,6 +333,25 @@ export async function createEditor(container, contextProps) {
         console.log(`Node renamed successfully: ${nodeId} -> ${newName}`);
     };
 
+    const updateNodePosition = (nodeId, newPosition) => {
+        setNodeList((prev) => {
+            const updatedList = prev.data.map((node) =>
+                node.id === nodeId
+                    ? { ...node, x: newPosition.x, y: newPosition.y }
+                    : node
+            );
+            return { ...prev, data: updatedList };
+        });
+    };
+
+    area.addPipe((context) => {
+        if (context.type === "nodetranslated") {
+            const { id, position } = context.data;
+            updateNodePosition(id, position);
+        }
+        return context;
+    });
+
     const handleNodeData = () => {
         console.log(nodeList, "nodeList in createEditor");
     };
@@ -371,5 +390,6 @@ export async function createEditor(container, contextProps) {
         deleteNode,
         addConnection,
         renameNode,
+        updateNodePosition,
     };
 }
