@@ -9,9 +9,21 @@ import {
     WORKFLOW_SINGLE_NODE_EXECUTE_BY_ID,
     WORKFLOW_UPDATE,
 } from "../constants/ApiUrl";
+import { getAccessToken } from "./authService";
 
 // Base URL for your API
 // const BASE_URL = "https://auto-x.zaag-testing.ems24.co/api/1.0.0";
+
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+    const token = getAccessToken();
+
+    console.log(token, "<--- Auth Token");
+    return {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+    };
+};
 
 // API endpoints
 const ENDPOINTS = {
@@ -36,11 +48,13 @@ export const QUERY_KEYS = {
 
 // Fetch all workflows
 export const useWorkflows = (params = { size: 1000, page: 0 }) => {
+    console.log(getAuthHeaders(), "<--- Auth Headers in useWorkflows");
     return useQuery({
         queryKey: [...QUERY_KEYS.WORKFLOWS, params],
         queryFn: async () => {
             const response = await axios.get(ENDPOINTS.WORKFLOW_LIST, {
                 params,
+                headers: getAuthHeaders(),
             });
             return response.data;
         },
@@ -52,7 +66,9 @@ export const useWorkflow = (id, enabled = true) => {
     return useQuery({
         queryKey: QUERY_KEYS.WORKFLOW(id),
         queryFn: async () => {
-            const response = await axios.get(ENDPOINTS.WORKFLOW_BY_ID(id));
+            const response = await axios.get(ENDPOINTS.WORKFLOW_BY_ID(id), {
+                headers: getAuthHeaders(),
+            });
             return response.data;
         },
         enabled: !!id && enabled,
@@ -67,7 +83,10 @@ export const useCreateWorkflow = () => {
         mutationFn: async (workflowData) => {
             const response = await axios.post(
                 ENDPOINTS.WORKFLOW_CREATE,
-                workflowData
+                workflowData,
+                {
+                    headers: getAuthHeaders(),
+                }
             );
             return response.data;
         },
@@ -86,7 +105,10 @@ export const useUpdateWorkflow = () => {
         mutationFn: async ({ id, workflowData }) => {
             const response = await axios.put(
                 ENDPOINTS.WORKFLOW_UPDATE(id),
-                workflowData
+                workflowData,
+                {
+                    headers: getAuthHeaders(),
+                }
             );
             return response.data;
         },
@@ -107,7 +129,10 @@ export const useDeleteWorkflow = () => {
     return useMutation({
         mutationFn: async (id) => {
             const response = await axios.delete(
-                ENDPOINTS.WORKFLOW_DELETE_BY_ID(id)
+                ENDPOINTS.WORKFLOW_DELETE_BY_ID(id),
+                {
+                    headers: getAuthHeaders(),
+                }
             );
             return response.data;
         },
@@ -123,7 +148,11 @@ export const useExecuteWorkflow = () => {
     return useMutation({
         mutationFn: async (id) => {
             const response = await axios.post(
-                ENDPOINTS.WORKFLOW_EXECUTE_BY_ID(id)
+                ENDPOINTS.WORKFLOW_EXECUTE_BY_ID(id),
+                {},
+                {
+                    headers: getAuthHeaders(),
+                }
             );
             return response.data;
         },
@@ -135,7 +164,14 @@ export const useExecuteSingleNode = () => {
     return useMutation({
         mutationFn: async ({ workflowId, nodeId }) => {
             const response = await axios.post(
-                ENDPOINTS.WORKFLOW_SINGLE_NODE_EXECUTE_BY_ID(workflowId, nodeId)
+                ENDPOINTS.WORKFLOW_SINGLE_NODE_EXECUTE_BY_ID(
+                    workflowId,
+                    nodeId
+                ),
+                {},
+                {
+                    headers: getAuthHeaders(),
+                }
             );
             return response.data;
         },
