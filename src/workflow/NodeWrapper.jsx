@@ -26,7 +26,7 @@ const NodeWrapper = (props) => {
     // Select the component based on the slug
     const SelectedComponent = componentMap[slug] || Nodes.Default;
 
-    console.log({ data });
+    console.log(data, "from NodeWrapper");
 
     // Render the selected component
     return (
