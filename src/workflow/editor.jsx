@@ -382,6 +382,27 @@ export async function createEditor(container, contextProps) {
         AreaExtensions.zoomAt(area, editor.getNodes());
     }, 100);
 
+    const updateNodeStatus = async (nodeId, status, executionResult = null) => {
+        const node = editor.getNode(nodeId);
+        if (!node) {
+            console.error(
+                `Node with ID ${nodeId} not found for status update.`
+            );
+            return;
+        }
+
+        // Update node data
+        node.status = status;
+        if (executionResult) {
+            node.executionResult = executionResult;
+        }
+
+        // Force re-render the node
+        await area.update("node", nodeId);
+
+        console.log(`Node ${nodeId} status updated to: ${status}`);
+    };
+
     return {
         destroy: () => area.destroy(),
         addNode, // Return the reference to addNode
@@ -391,5 +412,7 @@ export async function createEditor(container, contextProps) {
         addConnection,
         renameNode,
         updateNodePosition,
+        updateNodeStatus,
+        area, // Add area reference for updates
     };
 }

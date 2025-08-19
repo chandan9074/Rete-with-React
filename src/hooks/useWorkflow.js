@@ -107,6 +107,8 @@ export const useWorkflowOperations = (id) => {
             return result;
         } catch (error) {
             message.error("Failed to execute workflow");
+            // Refetch to get any partial execution results
+            await refetch();
             throw error;
         }
     };
@@ -125,6 +127,8 @@ export const useWorkflowOperations = (id) => {
             return { result, frontendId };
         } catch (error) {
             message.error("Failed to execute node");
+            // Refetch to get any partial execution results
+            await refetch();
             throw error;
         }
     };
