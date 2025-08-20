@@ -4,12 +4,14 @@ import React, { useEffect, useRef } from "react";
 import { BsHourglassSplit } from "react-icons/bs";
 import { CiGlobe } from "react-icons/ci";
 
-const HttpRequestJSONForm = ({
+const NodeJsonForm = ({
     data,
     setNodeList,
     nodeList,
     handleSubmit,
     handleFormDrawerClose,
+    handleUpdateWorkflow,
+    handleUpdateNodeData,
 }) => {
     const [form] = Form.useForm();
     const [switchData, setSwitchData] = React.useState({
@@ -30,10 +32,10 @@ const HttpRequestJSONForm = ({
     }, []);
 
     const onFinish = (values) => {
+        const parseData = JSON.parse(values.json);
+
         const updatedNodeList = nodeList?.data?.map((node) => {
             if (node.id === data.id) {
-                const parseData = JSON.parse(values.json);
-
                 return {
                     label: parseData?.label,
                     id: parseData?.id,
@@ -47,12 +49,27 @@ const HttpRequestJSONForm = ({
             }
             return node;
         });
+
         console.log("Updated Node List:", updatedNodeList);
         setNodeList((prev) => ({
             ...prev,
             data: updatedNodeList,
         }));
-        handleSubmit(updatedNodeList);
+
+        // Update the node in the editor to reflect visual changes immediately
+        if (handleUpdateNodeData) {
+            handleUpdateNodeData(data.id, {
+                label: parseData?.label,
+                slug: parseData?.slug,
+                ...(parseData.formData && { formData: parseData.formData }),
+            });
+        }
+
+        // Update the workflow to trigger API update
+        if (handleUpdateWorkflow) {
+            handleUpdateWorkflow(updatedNodeList);
+        }
+
         handleFormDrawerClose();
         console.log(JSON.parse(values.json));
     };
@@ -131,4 +148,4 @@ const HttpRequestJSONForm = ({
     );
 };
 
-export default HttpRequestJSONForm;
+export default NodeJsonForm;

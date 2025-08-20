@@ -63,6 +63,18 @@ export const useNodeManagement = () => {
         }
     }, []);
 
+    const handleUpdateNodeData = useCallback((nodeId, newData, editor) => {
+        if (editor?.updateNodeData) {
+            editor.updateNodeData(nodeId, newData);
+            setNodeList((prev) => {
+                const updatedList = prev.data.map((node) =>
+                    node.id === nodeId ? { ...node, ...newData } : node
+                );
+                return { ...prev, data: updatedList };
+            });
+        }
+    }, []);
+
     const handleDuplicateNodeUpdate = useCallback((id, duplicateNodeData) => {
         setIsDuplicateNode({ id, duplicateNodeData });
     }, []);
@@ -77,6 +89,7 @@ export const useNodeManagement = () => {
         addNode,
         updateNodeInputsOutputs,
         handleRename,
+        handleUpdateNodeData,
         handleDuplicateNodeUpdate,
     };
 };

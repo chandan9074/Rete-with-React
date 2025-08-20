@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
-import { CiGlobe } from "react-icons/ci";
-import { FaClock, FaMousePointer, FaPlay } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
 import { MdDelete, MdEdit } from "react-icons/md";
+import { HiOutlineDocumentDuplicate } from "react-icons/hi";
+import { PiBracketsCurlyBold } from "react-icons/pi";
+import { Dropdown } from "antd";
 import { Presets } from "rete-react-plugin";
 import Icons from "../../assets";
 
@@ -28,6 +29,9 @@ export function SendAMessage(props) {
         openFormDrawer,
         setOpenFormDrawer,
         setSelectedNode,
+        setOpenRenameModal,
+        updateAsJson,
+        setUpdateAdJson,
     } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);
@@ -35,9 +39,7 @@ export function SendAMessage(props) {
     const selected = data.selected || false;
     const { id, label, width, height } = data;
     const [menuVisible, setMenuVisible] = useState(false);
-    const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-    const nodeRef = useRef(null); // Reference to the node element
-    const menuRef = useRef(null);
+    const nodeRef = useRef(null);
 
     // Sort inputs, outputs, and controls by index
     sortByIndex(inputs);
@@ -53,75 +55,117 @@ export function SendAMessage(props) {
 
     const handleRightClick = (event) => {
         event.preventDefault();
-        if (nodeRef.current) {
-            const rect = nodeRef.current.getBoundingClientRect(); // Get the node's position
-            console.log({ rect });
-            setMenuPosition({
-                x: 0, // Position the menu to the right of the node
-                y: 0, // Align the menu vertically with the node
-            });
-            setMenuVisible(true);
-        }
+        setMenuVisible(true);
     };
 
     const handleMenuOptionClick = async (event, option) => {
-        event.stopPropagation();
-
+        if (event) event.stopPropagation();
         switch (option) {
-            case "Duplicate":
-                // Logic to duplicate the node
-                console.log(`Duplicating node with ID: ${id}`);
-                duplicateNode(id);
-                // Here you would typically clone the node and add it to the editor
+            case "Rename":
+                setOpenRenameModal && setOpenRenameModal(data);
                 break;
-            case "Copy":
-                // Logic to copy the node
-                console.log(`Copying node with ID: ${id}`);
+            case "Duplicate":
+                duplicateNode(id);
                 break;
             case "Delete":
-                // Logic to delete the node
                 deleteNode(id);
-                console.log(`Deleting node with ID: ${id}`);
+                break;
+            case "UpdateJSON":
+                setUpdateAdJson && setUpdateAdJson(!updateAsJson);
+                setOpenFormDrawer && setOpenFormDrawer(true);
+                setSelectedNode && setSelectedNode(data);
                 break;
             default:
-                console.warn(`Unknown menu option: ${option}`);
+                break;
         }
-    };
-
-    const handleClickOutside = (event) => {
-        if (
-            menuRef.current &&
-            !menuRef.current.contains(event.target) &&
-            nodeRef.current &&
-            !nodeRef.current.contains(event.target) &&
-            !event.target.closest(".p-2")
-        ) {
-            console.log("Clicked outside the node or menu");
-            setMenuVisible(false); // Close the menu if clicked outside
-        }
+        setMenuVisible(false);
     };
 
     useEffect(() => {
-        document.addEventListener("mousedown", handleClickOutside);
+        const handleClickOutside = (event) => {
+            if (
+                nodeRef.current &&
+                !nodeRef.current.contains(event.target) &&
+                !event.target.closest(".ant-dropdown")
+            ) {
+                setMenuVisible(false);
+            }
+        };
+        if (menuVisible) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, []);
+    }, [menuVisible]);
 
     const handleNodeDoubleClick = (event) => {
-        event.stopPropagation(); // Prevent the context menu from appearing
-        setOpenFormDrawer(true); // Open the form drawer
-        setSelectedNode(data); // Set the selected node in context
-        // Here you can handle the double-click event, like opening a form drawer
+        event.stopPropagation();
+        setOpenFormDrawer(true);
+        setSelectedNode(data);
     };
+
+    const dropdownItems = [
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => handleMenuOptionClick(e, "Rename")}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Rename</span>
+                    <MdEdit className="text-base" />
+                </button>
+            ),
+            key: "0",
+        },
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => handleMenuOptionClick(e, "Duplicate")}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Duplicate</span>
+                    <HiOutlineDocumentDuplicate className="text-base" />
+                </button>
+            ),
+            key: "1",
+        },
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => handleMenuOptionClick(e, "Delete")}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Delete</span>
+                    <MdDelete className="text-base" />
+                </button>
+            ),
+            key: "2",
+        },
+        {
+            label: (
+                <button
+                    onClick={(e) => handleMenuOptionClick(e, "UpdateJSON")}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Update JSON</span>
+                    <PiBracketsCurlyBold className="text-base" />
+                </button>
+            ),
+            key: "3",
+        },
+    ];
 
     return (
         <div className="group">
             <div
-                ref={nodeRef} // Attach the ref to the node element
+                ref={nodeRef}
                 data-testid="node"
                 className={
-                    `bg-[#414244] relative  border-2 border-gray-300 rounded-lg p-7 shadow-md` +
+                    `bg-[#414244] relative border-2 border-gray-300 rounded-lg p-7 shadow-md` +
                     (selected ? " border-red-500" : "")
                 }
                 style={extraStyle}
@@ -193,46 +237,14 @@ export function SendAMessage(props) {
                     </div>
                 )}
                 <p className="text-gray-200 font-semibold text-sm absolute -left-0 -bottom-7 w-full text-center select-none">
-                    Send a message
+                    {data.label || "Send a message"}
                 </p>
             </div>
-            {/* {menuVisible && (
-                <div
-                    ref={menuRef}
-                    className="absolute bg-gray-700 text-white rounded shadow-md p-2"
-                    style={{
-                        top: menuPosition.y,
-                        right: -(menuPosition.x + 110),
-                        zIndex: 1000,
-                    }}
-                >
-                    <button
-                        onClick={(e) => handleMenuOptionClick(e, "Duplicate")}
-                        className="p-2 hover:bg-gray-600 cursor-pointer"
-                        onPointerDown={(e) => e.stopPropagation()}
-                    >
-                        Duplicate
-                    </button>
-                    <div
-                        className="p-2 hover:bg-gray-600 cursor-pointer"
-                        onClick={(e) => handleMenuOptionClick(e, "Delete")}
-                        onPointerDown={(e) => e.stopPropagation()}
-                    >
-                        Delete
-                    </div>
-                    <div
-                        className="p-2 hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleMenuOptionClick("Copy")}
-                        onPointerDown={(e) => e.stopPropagation()}
-                    >
-                        Copy
-                    </div>
-                </div>
-            )} */}
-            <div className="absolute -top-10 w-full p-3  group-hover:flex hidden items-center justify-center gap-2.5">
-                <button className="cursor-pointer">
-                    <FaPlay className="text-sm text-gray-500" />
-                </button>
+            <div
+                className={`absolute -top-10 w-full p-3 group-hover:flex ${
+                    menuVisible ? "flex" : "hidden"
+                } items-center justify-center gap-2.5`}
+            >
                 <button
                     className="cursor-pointer"
                     onClick={(e) => handleMenuOptionClick(e, "Delete")}
@@ -247,9 +259,20 @@ export function SendAMessage(props) {
                 >
                     <IoIosSettings className="text-lg text-gray-500" />
                 </button>
-                <button className="cursor-pointer">
-                    <BsThreeDots className="text-lg text-gray-500" />
-                </button>
+                <Dropdown
+                    menu={{ items: dropdownItems }}
+                    trigger={["click"]}
+                    open={menuVisible}
+                    onOpenChange={setMenuVisible}
+                >
+                    <button
+                        onClick={() => setMenuVisible(true)}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        className="cursor-pointer"
+                    >
+                        <BsThreeDots className="text-lg text-gray-500" />
+                    </button>
+                </Dropdown>
             </div>
         </div>
     );

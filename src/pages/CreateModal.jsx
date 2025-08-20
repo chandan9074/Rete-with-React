@@ -1,12 +1,12 @@
 import { Form, Input, message, Modal } from "antd";
 import React from "react";
-import { WORKFLOW_CREATE } from "../constants/ApiUrl";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useCreateWorkflow } from "../services/workflowService";
 
 const CreateModal = ({ openCreateModal, setOpenCreateModal }) => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
+    const createWorkflowMutation = useCreateWorkflow();
 
     const onFinish = async (values) => {
         try {
@@ -16,7 +16,7 @@ const CreateModal = ({ openCreateModal, setOpenCreateModal }) => {
                 nodes: [
                     {
                         label: "When clicking 'Execute Workflow'",
-                        frontendId: `node${Date.now()}`, // Unique ID
+                        frontendId: `node${Date.now()}`,
                         x: 0,
                         y: 0,
                         inputs: ["a"],
@@ -27,14 +27,13 @@ const CreateModal = ({ openCreateModal, setOpenCreateModal }) => {
                 connections: [],
             };
 
-            const res = await axios.post(WORKFLOW_CREATE, data);
+            const res = await createWorkflowMutation.mutateAsync(data);
 
             message.success("Workflow created successfully");
-
-            navigate(`/workflow?id=${res.data.id}`);
+            navigate(`/workflow?id=${res.id}`);
         } catch (error) {
             console.error("Error creating workflow:", error);
-            message.error("Failed to create workflow");
+            message.error(error?.message || "Failed to create workflow");
         }
     };
 

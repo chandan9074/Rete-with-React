@@ -382,6 +382,32 @@ export async function createEditor(container, contextProps) {
         AreaExtensions.zoomAt(area, editor.getNodes());
     }, 100);
 
+    const updateNodeData = async (nodeId, newData) => {
+        // Get the node by its ID
+        const node = editor.getNode(nodeId);
+
+        if (!node) {
+            console.error(`Node with ID ${nodeId} not found.`);
+            return;
+        }
+
+        // Update the node's data properties
+        if (newData.label !== undefined) {
+            node.label = newData.label;
+        }
+        if (newData.slug !== undefined) {
+            node.slug = newData.slug;
+        }
+        if (newData.formData !== undefined) {
+            node.formData = newData.formData;
+        }
+
+        // Re-render the node to reflect the updated data
+        await area.update("node", nodeId);
+
+        console.log(`Node data updated successfully: ${nodeId}`);
+    };
+
     const updateNodeStatus = async (nodeId, status, executionResult = null) => {
         const node = editor.getNode(nodeId);
         if (!node) {
@@ -411,6 +437,7 @@ export async function createEditor(container, contextProps) {
         deleteNode,
         addConnection,
         renameNode,
+        updateNodeData,
         updateNodePosition,
         updateNodeStatus,
         area, // Add area reference for updates

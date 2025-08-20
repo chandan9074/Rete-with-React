@@ -54,6 +54,7 @@ export default function Canvas() {
         addNode,
         updateNodeInputsOutputs,
         handleRename,
+        handleUpdateNodeData,
         handleDuplicateNodeUpdate,
     } = useNodeManagement();
 
@@ -126,6 +127,10 @@ export default function Canvas() {
 
     const onRenameNode = (nodeId, name) => {
         handleRename(nodeId, name, editor);
+    };
+
+    const onUpdateNodeData = (nodeId, newData) => {
+        handleUpdateNodeData(nodeId, newData, editor);
     };
 
     // Handle duplicate node effect
@@ -246,6 +251,7 @@ export default function Canvas() {
                 handleUpdateWorkflow={(updatedNodeList) =>
                     handleUpdate(nodeList, editor, updatedNodeList)
                 }
+                handleUpdateNodeData={onUpdateNodeData}
                 handleSingleNodeExecution={onSingleNodeExecution}
                 nodeInputOutputs={nodeInputOutputs}
                 executeLoading={isExecutingSingleNode}

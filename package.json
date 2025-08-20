@@ -4,7 +4,7 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "vite",
+        "dev": "vite --mode dev --host 192.168.68.159 --port 5173",
         "build": "vite build",
         "build:prod": "vite build --mode prod",
         "build:dev": "vite build --mode dev",

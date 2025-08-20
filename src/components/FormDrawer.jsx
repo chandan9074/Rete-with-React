@@ -5,8 +5,8 @@ import ScheduleTriggerForm from "./NodeForm/ScheduleTriggerForm";
 import { useCommon } from "../context/CommonContextProvider";
 import EditFieldsForm from "./NodeForm/EditFieldsForm";
 import SendAMessageForm from "./NodeForm/SendAMessageForm";
-import HttpRequestJSONForm from "./NodeForm/HttpRequestJSONForm";
 import WorkflowJsonForm from "./NodeForm/WorkflowJsonForm";
+import NodeJsonForm from "./NodeForm/NodeJsonForm";
 
 const FormDrawer = ({
     openFormDrawer,
@@ -16,6 +16,7 @@ const FormDrawer = ({
     nodeList,
     handleSubmit,
     handleUpdateWorkflow,
+    handleUpdateNodeData,
     handleSingleNodeExecution,
     setUpdateAdJson,
     updateAsJson,
@@ -28,10 +29,10 @@ const FormDrawer = ({
 
     // Map slug values to corresponding components
     const componentMap = {
-        httpRequest: updateAsJson ? HttpRequestJSONForm : HttpRequestForm,
+        httpRequest: updateAsJson ? NodeJsonForm : HttpRequestForm,
         onASchedule: ScheduleTriggerForm,
         editFields: EditFieldsForm,
-        sendAMessage: SendAMessageForm,
+        sendAMessage: updateAsJson ? NodeJsonForm : SendAMessageForm,
         workflowJsonUpdate: WorkflowJsonForm,
     };
 
@@ -91,6 +92,7 @@ const FormDrawer = ({
                         handleSubmit={handleSubmit}
                         handleFormDrawerClose={handleFormDrawerClose}
                         handleUpdateWorkflow={handleUpdateWorkflow}
+                        handleUpdateNodeData={handleUpdateNodeData}
                         handleSingleNodeExecution={handleSingleNodeExecution}
                         nodeInputOutputs={nodeInputOutputs}
                         executeLoading={executeLoading}

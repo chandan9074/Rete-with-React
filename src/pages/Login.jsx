@@ -148,7 +148,7 @@ const Login = () => {
                     </Form.Item>
                 </Form>
 
-                <div className="text-center mt-4">
+                {/* <div className="text-center mt-4">
                     <span className="text-gray-400">
                         Don't have an account?{" "}
                         <a
@@ -164,7 +164,7 @@ const Login = () => {
                             Sign up
                         </a>
                     </span>
-                </div>
+                </div> */}
             </Card>
         </div>
     );
