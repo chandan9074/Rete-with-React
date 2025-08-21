@@ -104,7 +104,7 @@ export function Aggregate(props) {
                 data-testid="node"
                 className={
                     `bg-[#414244] relative  border-2 border-gray-300 rounded-lg p-7 shadow-md` +
-                    (selected ? " border-red-500" : "")
+                    (selected ? " border-orange-500" : "")
                 }
                 style={extraStyle}
                 onContextMenu={handleRightClick}

@@ -118,7 +118,7 @@ export default function Canvas() {
         try {
             const result = await handleExecuteSingleNode(nodeId, frontendId);
             if (result) {
-                updateNodeInputsOutputs(result);
+                updateNodeInputsOutputs(result, editor);
             }
         } catch (error) {
             console.error("Error in single node execution:", error);

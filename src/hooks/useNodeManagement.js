@@ -26,30 +26,79 @@ export const useNodeManagement = () => {
         return newNode;
     }, []);
 
-    const updateNodeInputsOutputs = useCallback((nodeExecutionResult) => {
-        const { result, frontendId } = nodeExecutionResult;
-        const { response } = result;
+    const updateNodeInputsOutputs = useCallback(
+        (nodeExecutionResult, editor = null) => {
+            const { result, frontendId } = nodeExecutionResult;
+            const { response } = result;
 
-        setNodeInputsOutputs((prev) => {
-            const updatedState = [...prev];
+            setNodeInputsOutputs((prev) => {
+                const updatedState = [...prev];
 
-            // Update or add node output
-            const existingNode = updatedState.find(
-                (node) => node.id === frontendId
-            );
-            if (existingNode) {
-                existingNode.output = response;
-            } else {
-                updatedState.push({
-                    id: frontendId,
-                    output: response,
-                    input: [],
-                });
-            }
+                // Update or add node output
+                const existingNode = updatedState.find(
+                    (node) => node.id === frontendId
+                );
+                if (existingNode) {
+                    existingNode.output = response;
+                } else {
+                    updatedState.push({
+                        id: frontendId,
+                        output: response,
+                        input: {},
+                    });
+                }
 
-            return updatedState;
-        });
-    }, []);
+                // If editor is available, find connected nodes and update their inputs
+                if (editor && editor.getConnections) {
+                    const connections = editor.getConnections();
+
+                    // Find connections where the executed node is the source
+                    const outgoingConnections = connections.filter(
+                        (connection) => connection.source === frontendId
+                    );
+
+                    console.log("Updating connected node inputs:", {
+                        sourceNodeId: frontendId,
+                        outgoingConnections,
+                        response,
+                    });
+
+                    // Update inputs of connected target nodes
+                    outgoingConnections.forEach((connection) => {
+                        const targetNodeId = connection.target;
+                        const targetInputKey = connection.targetInput;
+
+                        // Find or create target node in the state
+                        let targetNode = updatedState.find(
+                            (node) => node.id === targetNodeId
+                        );
+                        if (!targetNode) {
+                            targetNode = {
+                                id: targetNodeId,
+                                output: {},
+                                input: {},
+                            };
+                            updatedState.push(targetNode);
+                        }
+
+                        // Update the specific input of the target node
+                        if (!targetNode.input) {
+                            targetNode.input = {};
+                        }
+                        targetNode.input[targetInputKey] = response;
+
+                        console.log(`Updated input for node ${targetNodeId}:`, {
+                            inputKey: targetInputKey,
+                            inputData: response,
+                        });
+                    });
+                }
+
+                return updatedState;
+            });
+        },
+        []
+    );
 
     const handleRename = useCallback((nodeId, name, editor) => {
         if (editor?.renameNode) {

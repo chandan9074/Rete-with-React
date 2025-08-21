@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaCheck, FaMousePointer } from "react-icons/fa";
+import { FaCheck, FaMousePointer, FaTimes } from "react-icons/fa";
 import { MdDelete, MdEdit, MdOutlineWebhook } from "react-icons/md";
 import { Presets } from "rete-react-plugin";
 import { BsThreeDots } from "react-icons/bs";
@@ -184,9 +184,12 @@ export function Webhook(props) {
                     `bg-[#414244] relative  border-2 ${
                         data?.status === "success"
                             ? "border-green-500"
+                            : data?.status === "failed" ||
+                              data?.status === "error"
+                            ? "border-red-500"
                             : "border-gray-300"
-                    } rounded-r-lg rounded-l-4xl p-7 shadow-md` +
-                    (selected ? " border-red-500" : "")
+                    } rounded-lg p-7 shadow-md` +
+                    (selected ? " border-orange-500" : "")
                 }
                 style={extraStyle}
                 onContextMenu={handleRightClick}
@@ -204,6 +207,10 @@ export function Webhook(props) {
                 <div className="absolute bottom-2 right-2">
                     {data?.status === "success" && (
                         <FaCheck className="text-xl text-green-500" />
+                    )}
+                    {(data?.status === "failed" ||
+                        data?.status === "error") && (
+                        <FaTimes className="text-xl text-red-500" />
                     )}
                 </div>
 

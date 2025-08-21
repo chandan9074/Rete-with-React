@@ -2,7 +2,7 @@ import { Dropdown } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { AiFillThunderbolt } from "react-icons/ai";
 import { BsHourglassSplit, BsThreeDots } from "react-icons/bs";
-import { FaCheck, FaMousePointer, FaPlay } from "react-icons/fa";
+import { FaCheck, FaMousePointer, FaPlay, FaTimes } from "react-icons/fa";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { RingLoader } from "react-spinners";
@@ -175,9 +175,12 @@ export function ManualTrigger(props) {
                     `bg-gray-500 relative  border-2 ${
                         data?.status === "success"
                             ? "border-green-500"
+                            : data?.status === "failed" ||
+                              data?.status === "error"
+                            ? "border-red-500"
                             : "border-gray-300"
                     }  rounded-r-lg rounded-l-4xl p-7 shadow-md` +
-                    (selected ? " border-red-500" : "")
+                    (selected ? " border-orange-500" : "")
                 }
                 style={extraStyle}
                 onContextMenu={handleRightClick}
@@ -195,6 +198,10 @@ export function ManualTrigger(props) {
                 <div className="absolute bottom-2 right-2">
                     {data?.status === "success" && (
                         <FaCheck className="text-xl text-green-500" />
+                    )}
+                    {(data?.status === "failed" ||
+                        data?.status === "error") && (
+                        <FaTimes className="text-xl text-red-500" />
                     )}
                 </div>
                 {/* Outputs */}

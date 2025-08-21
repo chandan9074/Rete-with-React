@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CiGlobe } from "react-icons/ci";
-import { FaCheck, FaClock, FaMousePointer, FaPlay } from "react-icons/fa";
+import {
+    FaCheck,
+    FaClock,
+    FaMousePointer,
+    FaPlay,
+    FaTimes,
+} from "react-icons/fa";
 import { Presets } from "rete-react-plugin";
 import { useCommon } from "../../context/CommonContextProvider";
 import { MdDelete, MdEdit } from "react-icons/md";
@@ -211,9 +217,12 @@ export function HttpRequest(props) {
                     `bg-[#414244] relative  border-2 ${
                         data?.status === "success"
                             ? "border-green-500"
+                            : data?.status === "failed" ||
+                              data?.status === "error"
+                            ? "border-red-500"
                             : "border-gray-300"
                     } rounded-lg p-7 shadow-md` +
-                    (selected ? " border-red-500" : "")
+                    (selected ? " border-orange-500" : "")
                 }
                 style={extraStyle}
                 onContextMenu={handleRightClick}
@@ -235,6 +244,10 @@ export function HttpRequest(props) {
                 <div className="absolute bottom-2 right-2">
                     {data?.status === "success" && (
                         <FaCheck className="text-xl text-green-500" />
+                    )}
+                    {(data?.status === "failed" ||
+                        data?.status === "error") && (
+                        <FaTimes className="text-xl text-red-500" />
                     )}
                 </div>
 

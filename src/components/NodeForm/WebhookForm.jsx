@@ -3,7 +3,18 @@ import { Form, Input, Select } from "antd";
 import React, { useEffect } from "react";
 import { BsHourglassSplit } from "react-icons/bs";
 import { MdOutlineWebhook } from "react-icons/md";
-import { defaultJson, monacoTheme } from "../../helpers/editorThemeConfig";
+import { monacoTheme } from "../../helpers/editorThemeConfig";
+import { BACKEND_BASE_URL } from "../../constants/ApiUrl";
+
+// Default JSON structure for webhook body
+const defaultWebhookBody = JSON.stringify(
+    {
+        message: "Hello from webhook",
+        data: {},
+    },
+    null,
+    2
+);
 
 const WebhookForm = ({
     data,
@@ -18,10 +29,14 @@ const WebhookForm = ({
 }) => {
     const [form] = Form.useForm();
     const [buttonType, setButtonType] = React.useState("");
+    const [bodyJson, setBodyJson] = React.useState(defaultWebhookBody);
 
     // Parse query parameters
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get("id"); // Get the 'id' query parameter
+
+    // Generate webhook URL automatically
+    const webhookUrl = `${BACKEND_BASE_URL}/api/1.0.0/workflows/webhook/${id}`;
 
     console.log({ data });
     console.log(nodeInputOutputs, "nodeInputOutputs");
@@ -34,13 +49,17 @@ const WebhookForm = ({
             if (currentNode) {
                 const { formData } = currentNode;
                 form.setFieldsValue({
-                    webhookUrl: formData?.webhookUrl || "",
-                    method: formData?.method || "GET",
-                    description: formData?.description || "",
+                    webhookUrl: webhookUrl,
                 });
+                setBodyJson(formData?.bodyJson || defaultWebhookBody);
             }
+        } else {
+            // Set webhook URL even if no existing data
+            form.setFieldsValue({
+                webhookUrl: webhookUrl,
+            });
         }
-    }, [data, nodeList]);
+    }, [data, nodeList, webhookUrl]);
 
     const onFinish = async (values) => {
         console.log(data.id, "data.id in onFinish");
@@ -50,9 +69,8 @@ const WebhookForm = ({
                 return {
                     ...node,
                     formData: {
-                        webhookUrl: values.webhookUrl,
-                        method: values.method,
-                        description: values.description,
+                        webhookUrl: webhookUrl,
+                        bodyJson: bodyJson,
                     },
                 };
             }
@@ -136,83 +154,51 @@ const WebhookForm = ({
                                 </p>
                             }
                             name="webhookUrl"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please input webhook URL!",
-                                },
-                                {
-                                    type: "url",
-                                    message: "Please enter a valid URL!",
-                                },
-                            ]}
                         >
                             <Input
+                                readOnly
                                 style={{
-                                    backgroundColor: "#2D2E2E",
+                                    backgroundColor: "#1a1a1a",
                                     border: "1px solid #5b5c5c",
                                     color: "#f4f4f4",
+                                    cursor: "default",
                                 }}
-                                placeholder="https://your-webhook-url.com/endpoint"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                            label={
-                                <p className="text-sm text-gray-200">Method</p>
-                            }
-                            name="method"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please select method!",
-                                },
-                            ]}
-                        >
-                            <Select
-                                dropdownStyle={{ backgroundColor: "#2D2E2E" }}
-                                options={[
-                                    {
-                                        value: "GET",
-                                        label: "GET",
-                                    },
-                                    {
-                                        value: "POST",
-                                        label: "POST",
-                                    },
-                                ]}
-                                style={{
-                                    background: "#2D2E2E",
-                                    border: "1px solid #5b5c5c",
-                                    color: "#f4f4f4",
-                                }}
-                                rootClassName="bg-black"
-                                placeholder="Select Method"
+                                value={webhookUrl}
                             />
                         </Form.Item>
 
                         <Form.Item
                             label={
                                 <p className="text-sm text-gray-200">
-                                    Description
+                                    Body JSON
                                 </p>
                             }
-                            name="description"
-                            rules={[
-                                {
-                                    required: false,
-                                },
-                            ]}
                         >
-                            <Input.TextArea
-                                rows={4}
-                                style={{
-                                    backgroundColor: "#2D2E2E",
-                                    border: "1px solid #5b5c5c",
-                                    color: "#f4f4f4",
-                                }}
-                                placeholder="Describe what this webhook does..."
-                            />
+                            <div className="border border-[#5b5c5c] rounded">
+                                <Editor
+                                    height="200px"
+                                    defaultLanguage="json"
+                                    value={bodyJson}
+                                    theme="my-theme"
+                                    onChange={(value) =>
+                                        setBodyJson(value || defaultWebhookBody)
+                                    }
+                                    beforeMount={(monaco) => {
+                                        monaco.editor.defineTheme(
+                                            "my-theme",
+                                            monacoTheme
+                                        );
+                                    }}
+                                    options={{
+                                        minimap: { enabled: false },
+                                        scrollBeyondLastLine: false,
+                                        fontSize: 14,
+                                        lineNumbers: "on",
+                                        folding: true,
+                                        wordWrap: "on",
+                                    }}
+                                />
+                            </div>
                         </Form.Item>
                     </Form>
                 </div>

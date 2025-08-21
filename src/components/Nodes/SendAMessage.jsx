@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { IoIosSettings } from "react-icons/io";
 import { MdDelete, MdEdit } from "react-icons/md";
+import { FaCheck, FaTimes } from "react-icons/fa";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 import { PiBracketsCurlyBold } from "react-icons/pi";
 import { Dropdown } from "antd";
+import { RingLoader } from "react-spinners";
 import { Presets } from "rete-react-plugin";
 import Icons from "../../assets";
 
@@ -165,8 +167,15 @@ export function SendAMessage(props) {
                 ref={nodeRef}
                 data-testid="node"
                 className={
-                    `bg-[#414244] relative border-2 border-gray-300 rounded-lg p-7 shadow-md` +
-                    (selected ? " border-red-500" : "")
+                    `bg-[#414244] relative border-2 ${
+                        data?.status === "success"
+                            ? "border-green-500"
+                            : data?.status === "failed" ||
+                              data?.status === "error"
+                            ? "border-red-500"
+                            : "border-gray-300"
+                    } rounded-lg p-7 shadow-md` +
+                    (selected ? " border-orange-500" : "")
                 }
                 style={extraStyle}
                 onContextMenu={handleRightClick}
@@ -179,6 +188,21 @@ export function SendAMessage(props) {
                         className="w-12 h-12 select-none"
                         draggable="false"
                     />
+                </div>
+
+                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                    {data.status === "pending" && (
+                        <RingLoader size={60} color="#ffffff" />
+                    )}
+                </div>
+                <div className="absolute bottom-2 right-2">
+                    {data?.status === "success" && (
+                        <FaCheck className="text-xl text-green-500" />
+                    )}
+                    {(data?.status === "failed" ||
+                        data?.status === "error") && (
+                        <FaTimes className="text-xl text-red-500" />
+                    )}
                 </div>
 
                 <div className="absolute -left-2.5 top-1/2 transform -translate-y-1/2">

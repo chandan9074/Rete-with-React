@@ -1,9 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AiFillThunderbolt } from "react-icons/ai";
 import { BsHourglassSplit, BsThreeDots } from "react-icons/bs";
-import { FaClock, FaMousePointer, FaPlay } from "react-icons/fa";
+import {
+    FaClock,
+    FaMousePointer,
+    FaPlay,
+    FaCheck,
+    FaTimes,
+} from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
+import { RingLoader } from "react-spinners";
 import { Presets } from "rete-react-plugin";
 
 const { RefSocket, RefControl } = Presets.classic;
@@ -119,8 +126,15 @@ export function ScheduleTrigger(props) {
                 ref={nodeRef} // Attach the ref to the node element
                 data-testid="node"
                 className={
-                    `bg-[#414244] relative  border-2 border-gray-300 rounded-r-lg rounded-l-4xl p-7 shadow-md` +
-                    (selected ? " border-red-500" : "")
+                    `bg-[#414244] relative  border-2 ${
+                        data?.status === "success"
+                            ? "border-green-500"
+                            : data?.status === "failed" ||
+                              data?.status === "error"
+                            ? "border-red-500"
+                            : "border-gray-300"
+                    } rounded-r-lg rounded-l-4xl p-7 shadow-md` +
+                    (selected ? " border-orange-500" : "")
                 }
                 style={extraStyle}
                 onContextMenu={handleRightClick}
@@ -128,6 +142,21 @@ export function ScheduleTrigger(props) {
                 {/* Sockets Row */}
                 <div>
                     <FaClock className="text-5xl text-[#31C49F]" />
+                </div>
+
+                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                    {data.status === "pending" && (
+                        <RingLoader size={60} color="#ffffff" />
+                    )}
+                </div>
+                <div className="absolute bottom-2 right-2">
+                    {data?.status === "success" && (
+                        <FaCheck className="text-xl text-green-500" />
+                    )}
+                    {(data?.status === "failed" ||
+                        data?.status === "error") && (
+                        <FaTimes className="text-xl text-red-500" />
+                    )}
                 </div>
                 {/* Outputs */}
                 <div className="absolute -right-2.5 top-1/2 transform -translate-y-1/2">
