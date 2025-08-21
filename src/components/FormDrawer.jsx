@@ -7,6 +7,7 @@ import EditFieldsForm from "./NodeForm/EditFieldsForm";
 import SendAMessageForm from "./NodeForm/SendAMessageForm";
 import WorkflowJsonForm from "./NodeForm/WorkflowJsonForm";
 import NodeJsonForm from "./NodeForm/NodeJsonForm";
+import WebhookForm from "./NodeForm/WebhookForm";
 
 const FormDrawer = ({
     openFormDrawer,
@@ -33,6 +34,7 @@ const FormDrawer = ({
         onASchedule: ScheduleTriggerForm,
         editFields: EditFieldsForm,
         sendAMessage: updateAsJson ? NodeJsonForm : SendAMessageForm,
+        webhook: updateAsJson ? NodeJsonForm : WebhookForm,
         workflowJsonUpdate: WorkflowJsonForm,
     };
 

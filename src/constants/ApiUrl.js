@@ -1,4 +1,5 @@
-export const BACKEND_BASE_URL = "https://auto-x.zaag-testing.ems24.co";
+// export const BACKEND_BASE_URL = "https://auto-x.zaag-testing.ems24.co";
+export const BACKEND_BASE_URL = "http://192.168.10.68:7890";
 
 // Workflow API URLs
 export const WORKFLOW_LIST = `${BACKEND_BASE_URL}/api/1.0.0/secured/workflows`;

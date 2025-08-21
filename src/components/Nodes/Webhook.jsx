@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaMousePointer } from "react-icons/fa";
-import { MdOutlineWebhook } from "react-icons/md";
+import { FaCheck, FaMousePointer } from "react-icons/fa";
+import { MdDelete, MdEdit, MdOutlineWebhook } from "react-icons/md";
 import { Presets } from "rete-react-plugin";
+import { BsThreeDots } from "react-icons/bs";
+import { IoIosSettings } from "react-icons/io";
+import { Dropdown } from "antd";
+import { RingLoader } from "react-spinners";
+import { HiOutlineDocumentDuplicate } from "react-icons/hi";
+import { PiBracketsCurlyBold } from "react-icons/pi";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -15,7 +21,22 @@ function sortByIndex(entries) {
 }
 
 export function Webhook(props) {
-    const { data, styles: stylesFn, emit, deleteNode, duplicateNode } = props;
+    const {
+        data,
+        styles: stylesFn,
+        emit,
+        deleteNode,
+        duplicateNode,
+        openFormDrawer,
+        setOpenFormDrawer,
+        selectedNode,
+        setOpenRenameModal,
+        setSelectedNode,
+        nodeList,
+        handleNodeData,
+        updateAsJson,
+        setUpdateAdJson,
+    } = props;
     const inputs = Object.entries(data.inputs);
     const outputs = Object.entries(data.outputs);
     const controls = Object.entries(data.controls);
@@ -24,7 +45,6 @@ export function Webhook(props) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const nodeRef = useRef(null); // Reference to the node element
-    const menuRef = useRef(null);
 
     // Sort inputs, outputs, and controls by index
     sortByIndex(inputs);
@@ -76,16 +96,7 @@ export function Webhook(props) {
     };
 
     const handleClickOutside = (event) => {
-        if (
-            menuRef.current &&
-            !menuRef.current.contains(event.target) &&
-            nodeRef.current &&
-            !nodeRef.current.contains(event.target) &&
-            !event.target.closest(".p-2")
-        ) {
-            console.log("Clicked outside the node or menu");
-            setMenuVisible(false); // Close the menu if clicked outside
-        }
+        setMenuVisible(false); // Close the menu if clicked outside
     };
 
     useEffect(() => {
@@ -95,13 +106,86 @@ export function Webhook(props) {
         };
     }, []);
 
+    const handleNodeDoubleClick = (event) => {
+        console.log("click");
+        event.stopPropagation(); // Prevent the context menu from appearing
+        console.log({ setOpenFormDrawer, openFormDrawer });
+        setOpenFormDrawer(true); // Open the form drawer
+        console.log(data, "data in Webhook.jsx");
+        setSelectedNode(data); // Set the selected node in context
+        // Here you can handle the double-click event, like opening a form drawer
+    };
+
+    console.log(data, "data in Webhook.jsx");
+
+    const items = [
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => setOpenRenameModal(data)}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Rename</span>
+                    <MdEdit className="text-base" />
+                </button>
+            ),
+            key: "0",
+        },
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => handleMenuOptionClick(e, "Duplicate")}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Duplicate</span>
+                    <HiOutlineDocumentDuplicate className="text-base" />
+                </button>
+            ),
+            key: "1",
+        },
+        {
+            label: (
+                <button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => handleMenuOptionClick(e, "Delete")}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Delete</span>
+                    <MdDelete className="text-base" />
+                </button>
+            ),
+            key: "4",
+        },
+        {
+            label: (
+                <button
+                    onClick={(e) => {
+                        setUpdateAdJson(!updateAsJson);
+                        handleNodeDoubleClick(e);
+                    }}
+                    className="w-[200px] text-left flex items-center justify-between"
+                >
+                    <span>Update JSON</span>
+                    <PiBracketsCurlyBold className="text-base" />
+                </button>
+            ),
+            key: "2",
+        },
+    ];
+
     return (
-        <div>
+        <div className="group">
             <div
                 ref={nodeRef} // Attach the ref to the node element
                 data-testid="node"
                 className={
-                    `bg-gray-500 relative  border-2 border-gray-300 rounded-r-lg rounded-l-4xl p-7 shadow-md` +
+                    `bg-[#414244] relative  border-2 ${
+                        data?.status === "success"
+                            ? "border-green-500"
+                            : "border-gray-300"
+                    } rounded-r-lg rounded-l-4xl p-7 shadow-md` +
                     (selected ? " border-red-500" : "")
                 }
                 style={extraStyle}
@@ -111,7 +195,19 @@ export function Webhook(props) {
                 <div>
                     <MdOutlineWebhook className="text-5xl text-[#E7EBF3]" />
                 </div>
-                {/* Outputs */}
+
+                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                    {data.status === "pending" && (
+                        <RingLoader size={60} color="#ffffff" />
+                    )}
+                </div>
+                <div className="absolute bottom-2 right-2">
+                    {data?.status === "success" && (
+                        <FaCheck className="text-xl text-green-500" />
+                    )}
+                </div>
+
+                {/* Outputs - Webhook only has output, no input */}
                 <div className="absolute -right-2.5 top-1/2 transform -translate-y-1/2">
                     {outputs.map(([key, output]) => (
                         <div key={key}>
@@ -152,40 +248,39 @@ export function Webhook(props) {
                         )}
                     </div>
                 )}
+                <p className="text-gray-200 font-semibold text-sm absolute -left-9 top-28 w-44 text-center select-none">
+                    {data.label || "Webhook"}
+                </p>
             </div>
-            {menuVisible && (
-                <div
-                    ref={menuRef}
-                    className="absolute bg-gray-700 text-white rounded shadow-md p-2"
-                    style={{
-                        top: menuPosition.y,
-                        right: -(menuPosition.x + 110),
-                        zIndex: 1000,
-                    }}
+            <div
+                className={`absolute -top-10 w-full p-3  group-hover:flex ${
+                    menuVisible ? "flex" : "hidden"
+                } items-center justify-center gap-2.5`}
+            >
+                <button
+                    className="cursor-pointer"
+                    onClick={(e) => handleMenuOptionClick(e, "Delete")}
+                    onPointerDown={(e) => e.stopPropagation()}
                 >
+                    <MdDelete className="text-lg text-gray-500" />
+                </button>
+                <button
+                    className="cursor-pointer"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={handleNodeDoubleClick}
+                >
+                    <IoIosSettings className="text-lg text-gray-500" />
+                </button>
+                <Dropdown menu={{ items }} trigger={["click"]}>
                     <button
-                        onClick={(e) => handleMenuOptionClick(e, "Duplicate")}
-                        className="p-2 hover:bg-gray-600 cursor-pointer"
+                        onClick={() => setMenuVisible(true)}
                         onPointerDown={(e) => e.stopPropagation()}
+                        className="cursor-pointer"
                     >
-                        Duplicate
+                        <BsThreeDots className="text-lg text-gray-500" />
                     </button>
-                    <div
-                        className="p-2 hover:bg-gray-600 cursor-pointer"
-                        onClick={(e) => handleMenuOptionClick(e, "Delete")}
-                        onPointerDown={(e) => e.stopPropagation()}
-                    >
-                        Delete
-                    </div>
-                    <div
-                        className="p-2 hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleMenuOptionClick("Copy")}
-                        onPointerDown={(e) => e.stopPropagation()}
-                    >
-                        Copy
-                    </div>
-                </div>
-            )}
+                </Dropdown>
+            </div>
         </div>
     );
 }
