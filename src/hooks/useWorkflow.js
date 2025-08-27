@@ -11,6 +11,9 @@ import {
 
 export const useWorkflowOperations = (id) => {
     const navigate = useNavigate();
+    const [activePollingIntervals, setActivePollingIntervals] = useState(
+        new Set()
+    );
 
     // React Query hooks
     const { data: workflowData, isLoading, refetch } = useWorkflow(id);
@@ -18,6 +21,41 @@ export const useWorkflowOperations = (id) => {
     const updateWorkflowMutation = useUpdateWorkflow();
     const executeWorkflowMutation = useExecuteWorkflow();
     const executeSingleNodeMutation = useExecuteSingleNode();
+
+    // Cleanup intervals on component unmount
+    useEffect(() => {
+        return () => {
+            activePollingIntervals.forEach((interval) => {
+                if (interval) clearInterval(interval);
+            });
+            setActivePollingIntervals(new Set());
+        };
+    }, []); // Empty dependency array - only run on mount/unmount
+
+    // Helper function to manage polling intervals
+    const createPollingInterval = () => {
+        const interval = setInterval(async () => {
+            try {
+                await refetch();
+            } catch (pollingError) {
+                console.warn("Polling refetch failed:", pollingError);
+            }
+        }, 1000);
+
+        setActivePollingIntervals((prev) => new Set([...prev, interval]));
+        return interval;
+    };
+
+    const clearPollingInterval = (interval) => {
+        if (interval) {
+            clearInterval(interval);
+            setActivePollingIntervals((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(interval);
+                return newSet;
+            });
+        }
+    };
 
     const handleCreate = async (nodeList, editor) => {
         if (!editor) return;
@@ -100,12 +138,25 @@ export const useWorkflowOperations = (id) => {
     const handleExecute = async () => {
         if (!id) return;
 
+        let pollingInterval = null;
+
         try {
+            // Start polling to refetch workflow data every 1 second
+            pollingInterval = createPollingInterval();
+
             const result = await executeWorkflowMutation.mutateAsync(id);
             message.success("Workflow executed successfully");
+
+            // Clear the polling interval when execution completes
+            clearPollingInterval(pollingInterval);
+
+            // Final refetch after execution completion
             await refetch();
             return result;
         } catch (error) {
+            // Clear the polling interval on error
+            clearPollingInterval(pollingInterval);
+
             message.error("Failed to execute workflow");
             // Refetch to get any partial execution results
             await refetch();
@@ -116,16 +167,30 @@ export const useWorkflowOperations = (id) => {
     const handleExecuteSingleNode = async (nodeId, frontendId) => {
         if (!id) return;
 
+        let pollingInterval = null;
+
         try {
             message.loading("Executing node...");
+
+            // Start polling to refetch workflow data every 1 second
+            pollingInterval = createPollingInterval();
+
             const result = await executeSingleNodeMutation.mutateAsync({
                 workflowId: id,
                 nodeId,
             });
+
+            // Clear the polling interval when execution completes
+            clearPollingInterval(pollingInterval);
+
             message.success("Node executed successfully");
+            // Final refetch after execution completion
             await refetch();
             return { result, frontendId };
         } catch (error) {
+            // Clear the polling interval on error
+            clearPollingInterval(pollingInterval);
+
             message.error("Failed to execute node");
             // Refetch to get any partial execution results
             await refetch();
