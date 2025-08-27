@@ -125,6 +125,27 @@ export default function Canvas() {
         }
     };
 
+    const onWorkflowExecution = async () => {
+        try {
+            const result = await handleExecute();
+            if (result && Array.isArray(result)) {
+                // Handle workflow execution results - array of node results
+                result.forEach((nodeResult) => {
+                    if (nodeResult.nodeId) {
+                        // Transform the workflow result to match the expected format
+                        const transformedResult = {
+                            result: nodeResult,
+                            frontendId: nodeResult.nodeId, // Use nodeId as frontendId
+                        };
+                        updateNodeInputsOutputs(transformedResult, editor);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("Error in workflow execution:", error);
+        }
+    };
+
     const onRenameNode = (nodeId, name) => {
         handleRename(nodeId, name, editor);
     };
@@ -192,7 +213,7 @@ export default function Canvas() {
                             </span>
                         </button>
                         <button
-                            onClick={handleExecute}
+                            onClick={onWorkflowExecution}
                             disabled={isExecuting}
                             className="bg-[#FF6F5C] hover:bg-[#EF4E39] duration-300 py-2.5 px-5 rounded-md items-center gap-2 flex cursor-pointer disabled:opacity-50"
                         >
