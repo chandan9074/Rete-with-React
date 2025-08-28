@@ -51,6 +51,25 @@ export async function createEditor(container, contextProps) {
         accumulating: AreaExtensions.accumulateOnCtrl(),
     });
 
+    // Function to delete a connection
+    const deleteConnection = async (connectionId) => {
+        try {
+            const connections = editor.getConnections();
+            const connectionToDelete = connections.find(
+                (conn) => conn.id === connectionId
+            );
+
+            if (connectionToDelete) {
+                await editor.removeConnection(connectionId);
+            }
+        } catch (error) {
+            console.error(
+                `Failed to remove connection ${connectionId}:`,
+                error
+            );
+        }
+    };
+
     // Register React preset with custom components
     render.addPreset(
         Presets.classic.setup({
@@ -74,9 +93,26 @@ export async function createEditor(container, contextProps) {
                 socket() {
                     return CustomSocket;
                 },
-                connection(data) {
-                    if (data.payload.isMagnetic) return MagneticConnection;
-                    return CustomConnection;
+                connection(context) {
+                    const { data, payload } = context;
+
+                    // Check if this is a magnetic connection
+                    if (payload && payload.isMagnetic) {
+                        return MagneticConnection;
+                    }
+
+                    // Return the component function that accepts props
+                    return (props) => {
+                        return (
+                            <CustomConnection
+                                {...props}
+                                data={payload}
+                                connectionId={payload?.id}
+                                onDelete={deleteConnection}
+                                context={context}
+                            />
+                        );
+                    };
                 },
             },
         })
@@ -435,6 +471,7 @@ export async function createEditor(container, contextProps) {
         getNodes: () => editor.getNodes(),
         getConnections: () => editor.getConnections(),
         deleteNode,
+        deleteConnection, // Add connection deletion function
         addConnection,
         renameNode,
         updateNodeData,
